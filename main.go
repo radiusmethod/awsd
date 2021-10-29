@@ -25,9 +25,10 @@ func main() {
 
 	fmt.Printf(NoticeColor, "AWS Profile Switcher\n")
 	prompt := promptui.Select{
-		Label:    fmt.Sprintf(PromptColor, "Choose a profile"),
-		Items:    profiles,
-		HideHelp: true,
+		Label:        fmt.Sprintf(PromptColor, "Choose a profile"),
+		Items:        profiles,
+		HideHelp:     true,
+		HideSelected: true,
 		Templates: &promptui.SelectTemplates{
 			Label:    "{{ . }}?",
 			Active:   fmt.Sprintf("%s {{ . | cyan }}", promptui.IconSelect),
@@ -43,9 +44,10 @@ func main() {
 		fmt.Printf("Prompt failed %v\n", err)
 		return
 	}
-	fmt.Printf(KermitColor, "? ")
-	fmt.Printf(PromptColor, "Choose a profile ")
+	fmt.Printf(PromptColor, "Choose a profile")
+	fmt.Printf(NoticeColor, "? ")
 	fmt.Printf(CyanColor, result)
+	fmt.Println("")
 	writeFile(result, home)
 }
 
@@ -70,7 +72,7 @@ func getProfiles(profileFileLocation string) []string {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	r, err := regexp.Compile(`\[profile .*]`) // this can also be a regex
+	r, err := regexp.Compile(`\[profile .*]`)
 
 	if err != nil {
 		log.Fatal(err)
