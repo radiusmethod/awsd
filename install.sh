@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+PREFIX=${PREFIX:="/usr/local"}
+mkdir -p "${PREFIX}/bin"
+PREFIX="$(cd -P -- "${PREFIX}" && pwd)"
+echo "Installing into ${PREFIX}/bin" | sed "s#$HOME#~#g"
+
 if ! command -v go version &> /dev/null
 then
     echo " -=-=--=-=-=-=-=-=-=-=-=-=-=-=- "
@@ -13,24 +18,16 @@ then
     exit
 fi
 
-OS=$(uname -s | tr '[:upper:]' '[:lower:]')
-KERN=$(uname -m)
+OS=$(go env GOOS)
+ARCH=$(go env GOARCH)
 RC="${SHELL##*/}rc"
 
-if [ "$KERN" == "aarch64" ]; then
-  ARCH="arm64"
-elif [ "$KERN" == "i686" ]; then
-  ARCH="386"
-else
-  ARCH="amd64"
-fi
+env GOOS="$OS" GOBIN="${PREFIX}"/bin/  GOARCH="$ARCH" go install
 
-env GOOS="$OS" GOBIN=/usr/local/bin/  GOARCH="$ARCH" go install
+touch "${PREFIX}"/bin/_awsd
+chmod +x "${PREFIX}"/bin/_awsd
 
-touch /usr/local/bin/_awsd
-chmod +x /usr/local/bin/_awsd
-
-cat > "/usr/local/bin/_awsd" <<EOF
+cat > "${PREFIX}/bin/_awsd" <<EOF
 #!/usr/bin/env bash
 
 if [[ "\$1" == "version" ]]; then
