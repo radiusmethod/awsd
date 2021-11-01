@@ -1,0 +1,46 @@
+name: 'release'
+
+on:
+  push:
+    tags: [ '*' ]
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    needs: [ lint ]
+    steps:
+      - uses: actions/checkout@v2
+        id: code-checkout
+      - name: Build package
+        id: build-package
+        run: |
+          export ARTIFACT_FILE=awsd-${GITHUB_REF##*/}
+          export ARTIFACT_FILENAME=${ARTIFACT_FILE}.zip
+          git archive --format=zip --output=${ARTIFACT_FILENAME} --prefix=${ARTIFACT_FILE}/ HEAD
+      - name: Prepare artifact metadata
+        id: prepare_artifact_metadata
+        run: |
+          echo ::set-output name=ARTIFACT_PATH::./awsd-${GITHUB_REF##*/}.zip
+          echo ::set-output name=ARTIFACT_NAME::awsd-${GITHUB_REF##*/}.zip
+      - name: Release stable
+        if: "!contains(github.ref, 'beta')"
+        id: stable_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          prerelease: false
+          draft: false
+      - name: Upload Stable Asset
+        if: "!contains(github.ref, 'beta')"
+        id: stable-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.stable_release.outputs.upload_url }}
+          asset_path: ${{ steps.prepare_artifact_metadata.outputs.ARTIFACT_PATH }}
+          asset_name: ${{ steps.prepare_artifact_metadata.outputs.ARTIFACT_NAME }}
+          asset_content_type: application/zip
