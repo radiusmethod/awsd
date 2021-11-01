@@ -33,6 +33,11 @@ chmod +x /usr/local/bin/_awsd
 cat > "/usr/local/bin/_awsd" <<EOF
 #!/usr/bin/env bash
 
+if [[ "\$1" == "version" ]]; then
+  _awsd_prompt version
+  return
+fi
+
 AWS_PROFILE="\$AWS_PROFILE" _awsd_prompt
 
 selected_profile="\$(cat ~/.awsd)"
