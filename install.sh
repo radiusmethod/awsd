@@ -47,7 +47,10 @@ else
 fi
 EOF
 
-echo 'alias awsd="source _awsd"' >> "$HOME/.$RC"
+cat >> "$HOME/.$RC" <<EOF
+alias awsd="source _awsd"
+EOF
+
 echo " -=-=--=-=-=-=-=-=-=-=-=-=-=-=- "
 echo "                                "
 echo "   To Finish Installation       "
