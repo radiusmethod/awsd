@@ -16,8 +16,13 @@ const (
 	CyanColor   = "\033[0;36m%s\033[0m"
 )
 
-func main() {
+var version string = "v0.0.1"
 
+func main() {
+	if len(os.Args) > 1 && os.Args[1] == "version" {
+		fmt.Println("awsd version", version)
+		os.Exit(0)
+	}
 	home := os.Getenv("HOME")
 	profileFileLocation := getenv("AWS_CONFIG_FILE", fmt.Sprintf("%s/.aws/config", home))
 	profiles := getProfiles(profileFileLocation)
