@@ -13,7 +13,6 @@ import (
 const (
 	NoticeColor = "\033[0;38m%s\u001B[0m"
 	PromptColor = "\033[1;38m%s\u001B[0m"
-	KermitColor = "\033[1;32m%s\033[0m"
 	CyanColor   = "\033[0;36m%s\033[0m"
 )
 
