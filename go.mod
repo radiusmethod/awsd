@@ -1,6 +1,6 @@
 module github.com/pjaudiomv/_awsd_prompt
 
-go 1.17
+go 1.16
 
 require github.com/manifoldco/promptui v0.9.0
 
