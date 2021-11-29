@@ -1,11 +1,7 @@
-EXE =
-ifeq ($(GOOS),windows)
-EXE = .exe
-endif
-
 DESTDIR :=
-prefix  := /Users/pjoyce/workspace/git/pjaudiomv/awsd
+prefix  := /usr/local
 bindir  := ${prefix}/bin
+mandir  := ${prefix}/share/man
 
 .PHONY: build
 build:
