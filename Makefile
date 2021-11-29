@@ -1,4 +1,4 @@
-bindir  := ${prefix}/bin
+bindir  := ${DESTDIR}/bin
 
 .PHONY: build
 build:
