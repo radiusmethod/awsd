@@ -1,17 +1,19 @@
-bindir  := /usr/local/Cellar/awsd/0.0.2/bin
+BINDIR  = /usr/local/bin
 
 .PHONY: build
 build:
-	GOOS= GOARCH= GOARM= GOFLAGS= go build -o bin/_awsd_prompt $<
-	bash configure.sh ${bindir}
+	GOOS= GOARCH= GOARM= GOFLAGS= go build -o ${BINDIR}/_awsd_prompt
 
 
 .PHONY: install
 install: build
-	install -d ${bindir}
-	install -m755 bin/_awsd_prompt ${bindir}/
+	chmod 755 ${BINDIR}/_awsd_prompt
+	cp scripts/_awsd ${BINDIR}/_awsd
+	@echo 'alias awsd="source _awsd"' >> ${HOME}/.zshrc
+	@echo 'alias awsd="source _awsd"' >> ${HOME}/.bashrc
+	@echo 'alias awsd="source _awsd"' >> ${HOME}/.bash_profile
 
 .PHONY: uninstall
 uninstall:
-	rm -f ${bindir}/_awsd
-	rm -f ${bindir}/_awsd_prompt
+	rm -f ${BINDIR}/_awsd
+	rm -f ${BINDIR}/_awsd_prompt

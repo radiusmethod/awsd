@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+if [[ "$1" == "version" ]]; then
+  _awsd_prompt version
+  return
+fi
+
+AWS_PROFILE="$AWS_PROFILE" _awsd_prompt
+
+selected_profile="$(cat ~/.awsd)"
+
+if [ -z "$selected_profile" ]
+then
+  unset AWS_PROFILE
+else
+  export AWS_PROFILE="$selected_profile"
+fi
