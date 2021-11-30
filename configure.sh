@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-mkdir -p "${PREFIX}}/bin"
+mkdir -p "${PREFIX}/bin"
 PREFIX="$(cd -P -- "${PREFIX}" && pwd)"
 echo "Installing into ${PREFIX}" | sed "s#$HOME#~#g"
 
