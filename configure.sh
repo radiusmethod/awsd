@@ -10,6 +10,10 @@ RC="${SHELL##*/}rc"
 
 GOOS= GOARCH= GOARM= GOFLAGS= go build -o "${PREFIX}/bin/_awsd_prompt"
 
+cat >> "$HOME/.$RC" <<EOF
+alias awsd="source _awsd"
+EOF
+
 cat > "${PREFIX}/bin/_awsd" <<EOF
 #!/usr/bin/env bash
 
@@ -31,7 +35,3 @@ fi
 EOF
 
 chmod +x "${PREFIX}/bin/_awsd"
-
-cat >> "$HOME/.$RC" <<EOF
-alias awsd="source _awsd"
-EOF
