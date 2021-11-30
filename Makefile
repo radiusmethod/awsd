@@ -1,4 +1,4 @@
-bindir  := ${DESTDIR}/bin
+bindir  := /usr/local/Cellar/awsd/0.0.2/bin
 
 .PHONY: build
 build:
