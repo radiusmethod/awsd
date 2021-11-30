@@ -1,9 +1,16 @@
 #!/usr/bin/env bash
+mkdir -p "${PREFIX}}/bin"
+PREFIX="$(cd -P -- "${PREFIX}" && pwd)"
+echo "Installing into ${PREFIX}" | sed "s#$HOME#~#g"
 
-PREFIX=${1:="/usr/local/bin"}
+mkdir -p ${PREFIX}
+mkdir -p "${PREFIX}/bin"
+
 RC="${SHELL##*/}rc"
 
-cat > "${PREFIX}/_awsd" <<EOF
+GOOS= GOARCH= GOARM= GOFLAGS= go build -o "${PREFIX}/bin/_awsd_prompt"
+
+cat > "${PREFIX}/bin/_awsd" <<EOF
 #!/usr/bin/env bash
 
 if [[ "\$1" == "version" ]]; then
@@ -23,7 +30,7 @@ else
 fi
 EOF
 
-chmod +x "${PREFIX}/_awsd"
+chmod +x "${PREFIX}/bin/_awsd"
 
 cat >> "$HOME/.$RC" <<EOF
 alias awsd="source _awsd"
