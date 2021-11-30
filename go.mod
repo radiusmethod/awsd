@@ -1,4 +1,4 @@
-module github.com/pjaudiomv/_awsd_prompt
+module github.com/pjaudiomv/awsd
 
 go 1.16
 

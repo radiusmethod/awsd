@@ -1,19 +1,24 @@
-BINDIR  = /usr/local/bin
+BINDIR = /usr/local/bin
 
-.PHONY: build
-build:
+help:          ## Show this help
+	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
+
+install:       ## Install Target
 	GOOS= GOARCH= GOARM= GOFLAGS= go build -o ${BINDIR}/_awsd_prompt
-
-
-.PHONY: install
-install: build
 	chmod 755 ${BINDIR}/_awsd_prompt
 	cp scripts/_awsd ${BINDIR}/_awsd
-	@echo 'alias awsd="source _awsd"' >> ${HOME}/.zshrc
-	@echo 'alias awsd="source _awsd"' >> ${HOME}/.bashrc
-	@echo 'alias awsd="source _awsd"' >> ${HOME}/.bash_profile
+	@echo " -=-=--=-=-=-=-=-=-=-=-=-=-=-=- "
+	@echo "                                "
+	@echo "   To Finish Installation add   "
+	@echo "                                "
+	@echo "  alias awsd=\"source _awsd\"   "
+	@echo "                                "
+	@echo " to your bash profile or zshrc  "
+	@echo "   then open new terminal or    "
+	@echo "       source that file         "
+	@echo "                                "
+	@echo " -=-=--=-=-=-=-=-=-=-=-=-=-=-=- "
 
-.PHONY: uninstall
-uninstall:
+uninstall:     ## Uninstall Target
 	rm -f ${BINDIR}/_awsd
 	rm -f ${BINDIR}/_awsd_prompt

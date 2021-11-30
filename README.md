@@ -17,17 +17,23 @@ min go 1.16
 brew tap pjauduiomv/awsd
 brew install awsd
 ```
-then add `alias awsd="source _awsd"` to your `~/.bash_profile` or `~/.zshrc`. Then source that file or open new terminal.
 
-
-### from source
+### Makefile
 
 ```sh
-run install.sh
+make install
 ```
 
-open new terminal or source your `~/.bash_profile` or `~/.zshrc` config
 
+
+### To Finish Installation
+Add the following to your bash profile or zshrc then open new terminal or source that file
+
+```sh
+alias awsd="source _awsd"
+```
+
+Ex. `echo 'alias awsd="source _awsd"' >> ~/.zshrc`
 
 ## Usage
 ```sh
