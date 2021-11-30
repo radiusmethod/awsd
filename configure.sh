@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+
 mkdir -p "${PREFIX}/bin"
 PREFIX="$(cd -P -- "${PREFIX}" && pwd)"
 echo "Installing into ${PREFIX}" | sed "s#$HOME#~#g"
