@@ -14,7 +14,7 @@ min go 1.16
 ### Homebrew
 
 ```sh
-brew tap pjauduiomv/awsd
+brew tap pjaudiomv/awsd
 brew install awsd
 ```
 
