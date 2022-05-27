@@ -4,10 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/manifoldco/promptui"
+	"github.com/manifoldco/promptui/list"
 	"log"
 	"os"
 	"regexp"
 	"sort"
+	"strings"
 )
 
 const (
@@ -16,7 +18,13 @@ const (
 	CyanColor   = "\033[0;36m%s\033[0m"
 )
 
-var version string = "v0.0.1"
+var version string = "v0.0.2"
+
+func newPromptUISearcher(items []string) list.Searcher {
+	return func(searchInput string, itemIndex int) bool {
+		return strings.Contains(strings.ToLower(items[itemIndex]), strings.ToLower(searchInput))
+	}
+}
 
 func main() {
 	if len(os.Args) > 1 && os.Args[1] == "version" {
@@ -39,7 +47,9 @@ func main() {
 			Inactive: "  {{.}}",
 			Selected: "  {{ . | cyan }}",
 		},
-		Stdout: &bellSkipper{},
+		Searcher:          newPromptUISearcher(profiles),
+		StartInSearchMode: true,
+		Stdout:            &bellSkipper{},
 	}
 
 	_, result, err := prompt.Run()
