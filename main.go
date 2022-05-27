@@ -95,7 +95,7 @@ func getProfiles(profileFileLocation string) []string {
 	for scanner.Scan() {
 		if r.MatchString(scanner.Text()) {
 			s := scanner.Text()
-			reg := regexp.MustCompile(`(\[profile )|(\])`)
+			reg := regexp.MustCompile(`(\[profile )|(])`)
 			res := reg.ReplaceAllString(s, "")
 			profiles = append(profiles, res)
 		}
