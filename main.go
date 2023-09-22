@@ -34,11 +34,10 @@ func main() {
 	home := os.Getenv("HOME")
 	profileFileLocation := getenv("AWS_CONFIG_FILE", fmt.Sprintf("%s/.aws/config", home))
 	profiles := getProfiles(profileFileLocation)
-	touch, err := touchFile(fmt.Sprintf("%s/.awsd", home))
+	err := touchFile(fmt.Sprintf("%s/.awsd", home))
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	fmt.Printf(NoticeColor, "AWS Profile Switcher\n")
 	prompt := promptui.Select{
 		Label:        fmt.Sprintf(PromptColor, "Choose a profile"),
