@@ -18,7 +18,7 @@ const (
 	CyanColor   = "\033[0;36m%s\033[0m"
 )
 
-var version string = "v0.0.2"
+var version string = "v0.0.3"
 
 func newPromptUISearcher(items []string) list.Searcher {
 	return func(searchInput string, itemIndex int) bool {
@@ -34,6 +34,7 @@ func main() {
 	home := os.Getenv("HOME")
 	profileFileLocation := getenv("AWS_CONFIG_FILE", fmt.Sprintf("%s/.aws/config", home))
 	profiles := getProfiles(profileFileLocation)
+	touchFile(fmt.Sprintf("%s/.awsd", home))
 
 	fmt.Printf(NoticeColor, "AWS Profile Switcher\n")
 	prompt := promptui.Select{
@@ -55,7 +56,7 @@ func main() {
 	_, result, err := prompt.Run()
 
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
+		checkError(err)
 		return
 	}
 	fmt.Printf(PromptColor, "Choose a profile")
@@ -63,6 +64,14 @@ func main() {
 	fmt.Printf(CyanColor, result)
 	fmt.Println("")
 	writeFile(result, home)
+}
+
+func touchFile(name string) error {
+	file, err := os.OpenFile(name, os.O_RDONLY|os.O_CREATE, 0644)
+	if err != nil {
+		return err
+	}
+	return file.Close()
 }
 
 func writeFile(profile, loc string) {
@@ -116,6 +125,17 @@ func getenv(key, fallback string) string {
 		return fallback
 	}
 	return value
+}
+
+func checkError(err error) {
+	if err.Error() == "^D" {
+		// https://github.com/manifoldco/promptui/issues/179
+		log.Fatalf("<Del> not supported")
+	} else if err.Error() == "^C" {
+		os.Exit(1)
+	} else {
+		log.Fatal(err)
+	}
 }
 
 type bellSkipper struct{}

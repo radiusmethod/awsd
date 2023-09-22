@@ -1,0 +1,40 @@
+name: 'release'
+
+on:
+  push:
+    tags: [ '*' ]
+
+jobs:
+  lint-go:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '1.19'
+      - name: Lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.54.2
+          golangci-lint run main.go
+
+  release:
+    runs-on: ubuntu-22.04
+    needs: [ lint ]
+    steps:
+      - name: Check out code 🛒
+        uses: actions/checkout@v4
+
+      - name: Generate Release Notes 📝
+        if: github.ref_type == 'tag'
+        run: |
+          CHANGE=$(sed "/${GITHUB_REF_NAME%%-*}/,/##/!d;//d" CHANGELOG.md | awk 'NF')
+          echo "$CHANGE" > changelog.txt
+          RELEASE_TYPE=$(if [[ "$GITHUB_REF_NAME" =~ "beta" ]]; then echo "true"; else echo "false"; fi)
+          echo "RELEASE_TYPE=${RELEASE_TYPE}" >> $GITHUB_ENV
+
+      - name: Create Release 🎉
+        uses: ncipollo/release-action@v1.13.0
+        if: github.ref_type == 'tag'
+        with:
+          bodyFile: "changelog.txt"
+          prerelease: ${{ env.RELEASE_TYPE }}
