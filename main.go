@@ -18,7 +18,7 @@ const (
 	CyanColor   = "\033[0;36m%s\033[0m"
 )
 
-var version string = "v0.0.3"
+var version string = "v0.0.4"
 
 func newPromptUISearcher(items []string) list.Searcher {
 	return func(searchInput string, itemIndex int) bool {
@@ -116,9 +116,18 @@ func getProfiles(profileFileLocation string) []string {
 		log.Fatal(err)
 	}
 
-	profiles = append(profiles, "default")
+	profiles = appendIfNotExists(profiles, "default")
 	sort.Strings(profiles)
 	return profiles
+}
+
+func appendIfNotExists(slice []string, s string) []string {
+	for _, v := range slice {
+		if v == s {
+			return slice
+		}
+	}
+	return append(slice, s)
 }
 
 func getenv(key, fallback string) string {
