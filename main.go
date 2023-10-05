@@ -38,7 +38,6 @@ func main() {
 	} else if len(os.Args) > 1 && os.Args[1] != "version" {
 		// if there is an argument, and it is not "version"
 		// assume it is the desired profile value
-		fmt.Println("desired profile", os.Args[1])
 		desiredProfile = os.Args[1]
 	}
 
