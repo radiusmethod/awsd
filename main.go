@@ -32,13 +32,15 @@ func main() {
 	// If not argument is passed we will prompt the user to select a profile.
 	var desiredProfile = ""
 
-	if len(os.Args) > 1 && os.Args[1] == "version" {
-		fmt.Println("awsd version", version)
-		os.Exit(0)
-	} else if len(os.Args) > 1 && os.Args[1] != "version" {
-		// if there is an argument, and it is not "version"
-		// assume it is the desired profile value
-		desiredProfile = os.Args[1]
+	if len(os.Args) > 1 {
+		if os.Args[1] == "version" {
+			fmt.Println("awsd version", version)
+			os.Exit(0)
+		} else {
+			// if there is an argument, and it is not "version"
+			// assume it is the desired profile value
+			desiredProfile = os.Args[1]
+		}
 	}
 
 	home := os.Getenv("HOME")
