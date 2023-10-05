@@ -54,17 +54,13 @@ func main() {
 		for _, profile := range profiles {
 			if profile == desiredProfile {
 				writeFile(desiredProfile, home)
-				fmt.Printf(PromptColor, "Profile ")
-				fmt.Printf(CyanColor, desiredProfile)
-				fmt.Printf(PromptColor, " set. \n")
+				fmt.Printf(NoticeColor+"Profile %s set.\n", desiredProfile)
 				return
 			}
 		}
 		// print a warning if desired profile does not exist
-		fmt.Printf(NoticeColor, "WARNING: ")
-		fmt.Printf(PromptColor, "Profile ")
-		fmt.Printf(CyanColor, desiredProfile)
-		fmt.Printf(PromptColor, " does not exist. \n")
+		fmt.Printf(NoticeColor+"WARNING: Profile %s does not exist.\n", desiredProfile)
+
 		return
 	}
 
