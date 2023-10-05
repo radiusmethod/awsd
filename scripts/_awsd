@@ -5,7 +5,15 @@ if [[ "$1" == "version" ]]; then
   return
 fi
 
-AWS_PROFILE="$AWS_PROFILE" _awsd_prompt
+# check if $1 is empty
+if [ -z "$1" ]
+then
+  # no argument passed
+  AWS_PROFILE="$AWS_PROFILE" _awsd_prompt
+else
+  # argument passed, assume it's a profile name
+  AWS_PROFILE="$AWS_PROFILE" _awsd_prompt "$1"
+fi
 
 selected_profile="$(cat ~/.awsd)"
 
