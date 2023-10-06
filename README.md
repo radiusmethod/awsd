@@ -69,4 +69,21 @@ function aws_prof {
 PROMPT='OTHER_PROMPT_STUFF $(aws_info)'
 ```
 
+## Add autocompletion
+You can add autocompletion when passing profile as argument by creating a script with the following. I put it in 
+`~/bin/awsd_autocompltete.sh`, then source that script and add to your bash profile or zshrc file.
+`source ~/bin/awsd_autocompltete.sh`
+
+```bash
+_awsd_completion() {
+    local cur=${COMP_WORDS[COMP_CWORD]}
+    local suggestions=$(awsd list)
+    COMPREPLY=($(compgen -W "$suggestions" -- $cur))
+    return 0
+}
+complete -F _awsd_completion awsd
+```
+
+Now you can do `awsd my-p` and hit tab and if you had a profile `my-profile` it would autocomplete and find it.
+
 Inspired by https://github.com/johnnyopao/awsp

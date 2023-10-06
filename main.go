@@ -31,24 +31,28 @@ func main() {
 	// we will assume it is the desired profile value and try to set it.
 	// If not argument is passed we will prompt the user to select a profile.
 	var desiredProfile = ""
-
-	if len(os.Args) > 1 {
-		if os.Args[1] == "version" {
-			fmt.Println("awsd version", version)
-			os.Exit(0)
-		} else {
-			// if there is an argument, and it is not "version"
-			// assume it is the desired profile value
-			desiredProfile = os.Args[1]
-		}
-	}
-
 	home := os.Getenv("HOME")
 	profileFileLocation := getenv("AWS_CONFIG_FILE", fmt.Sprintf("%s/.aws/config", home))
 	profiles := getProfiles(profileFileLocation)
 	err := touchFile(fmt.Sprintf("%s/.awsd", home))
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if len(os.Args) > 1 {
+		if os.Args[1] == "version" {
+			fmt.Println("awsd version", version)
+			os.Exit(0)
+		} else if os.Args[1] == "list" {
+			for _, p := range profiles {
+				fmt.Println(p)
+			}
+			os.Exit(0)
+		} else {
+			// if there is an argument, and it is not "version"
+			// assume it is the desired profile value
+			desiredProfile = os.Args[1]
+		}
 	}
 
 	if desiredProfile != "" {
@@ -119,7 +123,7 @@ func writeFile(profile, loc string) {
 	}
 }
 
-func getProfiles(profileFileLocation string) []string {
+	func getProfiles(profileFileLocation string) []string {
 	profiles := make([]string, 0)
 
 	file, err := os.Open(profileFileLocation)
