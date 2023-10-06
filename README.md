@@ -72,7 +72,7 @@ PROMPT='OTHER_PROMPT_STUFF $(aws_info)'
 ## Add autocompletion
 You can add autocompletion when passing profile as argument by creating a script with the following. I put it in 
 `~/bin/awsd_autocompltete.sh`, then source that script and add to your bash profile or zshrc file.
-`source ~/bin/awsd_autocompltete.sh`
+`source ~/bin/awsd_autocomplete.sh`
 
 ```bash
 #!/usr/bin/env bash
