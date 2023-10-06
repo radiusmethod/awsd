@@ -78,7 +78,7 @@ You can add autocompletion when passing profile as argument by creating a script
 [ "$BASH_VERSION" ] && AWSD_CMD="awsd" || AWSD_CMD="_awsd"
 _awsd_completion() {
     local cur=${COMP_WORDS[COMP_CWORD]}
-    local suggestions=$(awsd list list)
+    local suggestions=$(awsd list)
     COMPREPLY=($(compgen -W "$suggestions" -- $cur))
     return 0
 }
