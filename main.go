@@ -18,7 +18,7 @@ const (
 	CyanColor   = "\033[0;36m%s\033[0m"
 )
 
-var version string = "v0.0.4"
+var version string = "v0.0.5"
 
 func newPromptUISearcher(items []string) list.Searcher {
 	return func(searchInput string, itemIndex int) bool {
@@ -27,10 +27,22 @@ func newPromptUISearcher(items []string) list.Searcher {
 }
 
 func main() {
-	if len(os.Args) > 1 && os.Args[1] == "version" {
-		fmt.Println("awsd version", version)
-		os.Exit(0)
+	// if a value is passed as and argument and the value is not "version"
+	// we will assume it is the desired profile value and try to set it.
+	// If not argument is passed we will prompt the user to select a profile.
+	var desiredProfile = ""
+
+	if len(os.Args) > 1 {
+		if os.Args[1] == "version" {
+			fmt.Println("awsd version", version)
+			os.Exit(0)
+		} else {
+			// if there is an argument, and it is not "version"
+			// assume it is the desired profile value
+			desiredProfile = os.Args[1]
+		}
 	}
+
 	home := os.Getenv("HOME")
 	profileFileLocation := getenv("AWS_CONFIG_FILE", fmt.Sprintf("%s/.aws/config", home))
 	profiles := getProfiles(profileFileLocation)
@@ -38,6 +50,26 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	if desiredProfile != "" {
+		//check if desired profile exists
+		for _, profile := range profiles {
+			if profile == desiredProfile {
+				writeFile(desiredProfile, home)
+				fmt.Printf(PromptColor, "Profile ")
+				fmt.Printf(CyanColor, desiredProfile)
+				fmt.Printf(PromptColor, " set. \n")
+				return
+			}
+		}
+		// print a warning if desired profile does not exist
+		fmt.Printf(NoticeColor, "WARNING: ")
+		fmt.Printf(PromptColor, "Profile ")
+		fmt.Printf(CyanColor, desiredProfile)
+		fmt.Printf(PromptColor, " does not exist. \n")
+		return
+	}
+
 	fmt.Printf(NoticeColor, "AWS Profile Switcher\n")
 	prompt := promptui.Select{
 		Label:        fmt.Sprintf(PromptColor, "Choose a profile"),

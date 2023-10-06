@@ -6,6 +6,15 @@ Easily switch between AWS Profiles
 
 <img src="assets/demo.gif" width="500">
 
+It is possible to short cut the menu selection by passing
+the profile name you want to switch to as an argument.
+
+```sh
+> awsd work
+Profile work set.
+```
+
+
 ## Requirements
 min go 1.16
 
