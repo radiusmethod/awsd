@@ -1,3 +1,6 @@
+## v0.0.6  (October 6, 2023)
+* Refactored codebase.
+
 ## v0.0.5  (October 6, 2023)
 * Added support for passing arbitrary profile names as arguments. [#4] thanks @withakay
 * Added `awsd list` command to simply list all profiles.

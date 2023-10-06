@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-if [[ "$1" == "version" ]]; then
-  _awsd_prompt version
-  return
-fi
-
 # check if $1 is empty
 if [ -z "$1" ]
 then
@@ -12,7 +7,7 @@ then
   AWS_PROFILE="$AWS_PROFILE" _awsd_prompt
 else
   # argument passed, assume it's a profile name
-  AWS_PROFILE="$AWS_PROFILE" _awsd_prompt "$1"
+  AWS_PROFILE="$AWS_PROFILE" _awsd_prompt "$@"
 fi
 
 selected_profile="$(cat ~/.awsd)"

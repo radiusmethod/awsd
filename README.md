@@ -75,15 +75,14 @@ You can add autocompletion when passing profile as argument by creating a script
 `source ~/bin/awsd_autocomplete.sh`
 
 ```bash
-#!/usr/bin/env bash
-
+[ "$BASH_VERSION" ] && AWSD_CMD="awsd" || AWSD_CMD="_awsd"
 _awsd_completion() {
     local cur=${COMP_WORDS[COMP_CWORD]}
-    local suggestions=$(awsd list)
+    local suggestions=$(awsd list list)
     COMPREPLY=($(compgen -W "$suggestions" -- $cur))
     return 0
 }
-complete -F _awsd_completion _awsd
+complete -o nospace -F _awsd_completion "${AWSD_CMD}"
 ```
 
 Now you can do `awsd my-p` and hit tab and if you had a profile `my-profile` it would autocomplete and find it.
