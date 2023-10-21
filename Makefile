@@ -4,7 +4,7 @@ help:          ## Show this help
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
 install:       ## Install Target
-	GOOS= GOARCH= GOARM= GOFLAGS= go build -o ${BINDIR}/_awsd_prompt
+	GOOS= GOARCH= GOARM= GOFLAGS= go build -o _awsd_prompt
 	cp scripts/_awsd ${BINDIR}/_awsd
 	@echo " -=-=--=-=-=-=-=-=-=-=-=-=-=-=- "
 	@echo "                                "

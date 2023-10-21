@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/pjaudiomv/awsd/src/utils"
+	"github.com/radiusmethod/awsd/src/utils"
 	"github.com/spf13/cobra"
 )
 

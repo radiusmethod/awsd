@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/manifoldco/promptui"
-	"github.com/pjaudiomv/awsd/src/utils"
+	"github.com/radiusmethod/awsd/src/utils"
 	"github.com/spf13/cobra"
 	"log"
 	"os"

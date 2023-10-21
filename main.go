@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/pjaudiomv/awsd/src/cmd"
+	"github.com/radiusmethod/awsd/src/cmd"
 )
 
 func main() {
