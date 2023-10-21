@@ -1,3 +1,6 @@
+## v0.0.7  (October 20, 2023)
+* Update for new organization.
+
 ## v0.0.6  (October 6, 2023)
 * Refactored codebase.
 

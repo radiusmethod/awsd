@@ -60,7 +60,7 @@ func shouldRunDirectProfileSwitch() bool {
 func directProfileSwitch(desiredProfile string) error {
 	profiles := utils.GetProfiles()
 	if utils.Contains(profiles, desiredProfile) {
-		printColoredMessage("Profile", utils.PromptColor)
+		printColoredMessage("Profile ", utils.PromptColor)
 		printColoredMessage(desiredProfile, utils.CyanColor)
 		printColoredMessage(" set.\n", utils.PromptColor)
 		return utils.WriteFile(desiredProfile, utils.GetHomeDir())
