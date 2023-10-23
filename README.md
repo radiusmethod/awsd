@@ -49,6 +49,13 @@ Ex. `echo 'alias awsd="source _awsd"' >> ~/.zshrc`
 awsd
 ```
 
+## Persist Profile across new shells
+To persist the set profile when you open new terminal windows, you can add the following to your bash profile or zshrc.
+
+```bash
+export AWS_PROFILE=$(cat ~/.awsd)
+```
+
 ## Show your AWS Profile in your shell prompt
 For better visibility into what your shell is set to it can be helpful to configure your prompt to show the value of the env variable `AWS_PROFILE`.
 
