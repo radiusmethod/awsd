@@ -1,24 +1,14 @@
-# awsd
+# awsd - AWS Profile Switcher in Go
 
-AWS Profile Switcher in Go
+<img src="assets/awsd.png" width="200">
 
-Easily switch between AWS Profiles
+awsd is a command-line utility that allows you to easily switch between AWS Profiles
 
 <img src="assets/demo.gif" width="500">
 
-It is possible to short cut the menu selection by passing
-the profile name you want to switch to as an argument.
+## Installation
 
-```sh
-> awsd work
-Profile work set.
-```
-
-
-## Requirements
-min go 1.16
-
-## Install
+Make sure you have Go installed. You can download it from [here](https://golang.org/dl/).
 
 ### Homebrew
 
@@ -33,8 +23,6 @@ brew install awsd
 make install
 ```
 
-
-
 ### To Finish Installation
 Add the following to your bash profile or zshrc then open new terminal or source that file
 
@@ -45,9 +33,23 @@ alias awsd="source _awsd"
 Ex. `echo 'alias awsd="source _awsd"' >> ~/.zshrc`
 
 ## Usage
-```sh
+
+### Switching AWS Profiles
+
+It is possible to shortcut the menu selection by passing the profile name you want to switch to as an argument.
+
+```bash
+> awsd work
+Profile work set.
+```
+
+To switch between different profiles files using the menu, use the following command:
+
+```bash
 awsd
 ```
+
+This command will display a list of available profiles files in your `~/aws/config` file. Select the one you want to use.
 
 ## Persist Profile across new shells
 To persist the set profile when you open new terminal windows, you can add the following to your bash profile or zshrc.
@@ -93,5 +95,14 @@ complete -o nospace -F _awsd_completion "${AWSD_CMD}"
 ```
 
 Now you can do `awsd my-p` and hit tab and if you had a profile `my-profile` it would autocomplete and find it.
+
+## Contributing
+
+If you encounter any issues or have suggestions for improvements, please open an issue or create a pull request on [GitHub](https://github.com/radiusmethod/awsd).
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 
 Inspired by https://github.com/johnnyopao/awsp
