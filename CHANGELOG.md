@@ -1,3 +1,6 @@
+## v0.0.8 (December 23, 2023)
+* Added autocomplete script to install.
+
 ## v0.0.7  (October 20, 2023)
 * Update for new organization.
 

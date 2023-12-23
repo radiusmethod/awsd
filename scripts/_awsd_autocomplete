@@ -1,0 +1,9 @@
+
+[ "$BASH_VERSION" ] && AWSD_CMD="awsd" || AWSD_CMD="_awsd"
+_awsd_completion() {
+    local cur=${COMP_WORDS[COMP_CWORD]}
+    local suggestions=$(awsd list)
+    COMPREPLY=($(compgen -W "$suggestions" -- $cur))
+    return 0
+}
+complete -o nospace -F _awsd_completion "${AWSD_CMD}"
