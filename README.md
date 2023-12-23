@@ -79,9 +79,8 @@ PROMPT='OTHER_PROMPT_STUFF $(aws_info)'
 ```
 
 ## Add autocompletion
-You can add autocompletion when passing profile as argument by creating a script with the following. I put it in 
-`~/bin/awsd_autocomplete.sh`, then source that script and add to your bash profile or zshrc file.
-`source ~/bin/awsd_autocomplete.sh`
+You can add autocompletion when passing config as argument by adding the following to your bash profile or zshrc file.
+`source _awsd_autocomplete`
 
 ```bash
 [ "$BASH_VERSION" ] && AWSD_CMD="awsd" || AWSD_CMD="_awsd"
@@ -95,6 +94,13 @@ complete -o nospace -F _awsd_completion "${AWSD_CMD}"
 ```
 
 Now you can do `awsd my-p` and hit tab and if you had a profile `my-profile` it would autocomplete and find it.
+
+## TL;DR (full config example)
+```bash
+alias awsd="source _awsd"
+source _awsd_autocomplete
+export AWS_PROFILE=$(cat ~/.awsd)
+```
 
 ## Contributing
 

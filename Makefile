@@ -6,6 +6,7 @@ help:          ## Show this help
 install:       ## Install Target
 	GOOS= GOARCH= GOARM= GOFLAGS= go build -o ${BINDIR}/_awsd_prompt
 	cp scripts/_awsd ${BINDIR}/_awsd
+	cp scripts/_awsd_autocomplete ${BINDIR}/_awsd_autocomplete
 	@echo " -=-=--=-=-=-=-=-=-=-=-=-=-=-=- "
 	@echo "                                "
 	@echo "   To Finish Installation add   "
@@ -20,4 +21,5 @@ install:       ## Install Target
 
 uninstall:     ## Uninstall Target
 	rm -f ${BINDIR}/_awsd
+	rm -f ${BINDIR}/_awsd_autocomplete
 	rm -f ${BINDIR}/_awsd_prompt
