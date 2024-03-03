@@ -1,0 +1,9 @@
+BINDIR = C:\tools
+
+install:       ## Install Target
+	go build -o ${BINDIR}/awsd/awsd_prompt
+	cp scripts/powrshell/awsd.ps1 ${BINDIR}/awsd/awsd.ps1
+  New-Item ~/.awsd
+
+uninstall:     ## Uninstall Target
+	rm -Force ${BINDIR}/awsd
