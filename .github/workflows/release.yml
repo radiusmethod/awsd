@@ -4,6 +4,9 @@ on:
   push:
     tags: [ '*' ]
 
+permissions:
+  contents: write
+  
 jobs:
   lint:
     runs-on: ubuntu-22.04
@@ -23,7 +26,7 @@ jobs:
     steps:
       - name: Check out code 🛒
         uses: actions/checkout@v4
-
+      
       - name: Generate Release Notes 📝
         if: github.ref_type == 'tag'
         run: |
@@ -38,3 +41,10 @@ jobs:
         with:
           bodyFile: "changelog.txt"
           prerelease: ${{ env.RELEASE_TYPE }}
+    
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --clean
