@@ -53,7 +53,7 @@ func runProfileSwitcher() error {
 }
 
 func shouldRunDirectProfileSwitch() bool {
-	invalidProfiles := []string{"l", "list", "completion", "help", "--help", "v", "version"}
+	invalidProfiles := []string{"l", "list", "completion", "help", "--help", "-h", "v", "version"}
 	return len(os.Args) > 1 && !utils.Contains(invalidProfiles, os.Args[1])
 }
 
