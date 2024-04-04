@@ -1,3 +1,6 @@
+## v0.0.9 (April 4, 2024)
+* Fixes issue with help command shorthand flag `-h`. [#20] thanks @Masamerc
+
 ## v0.0.8 (December 23, 2023)
 * Added autocomplete script to install.
 
