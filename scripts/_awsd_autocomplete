@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 
 [ "$BASH_VERSION" ] && AWSD_CMD="awsd" || AWSD_CMD="_awsd"
 _awsd_completion() {
@@ -6,4 +7,12 @@ _awsd_completion() {
     COMPREPLY=($(compgen -W "$suggestions" -- $cur))
     return 0
 }
+
+# complete is a bash builtin, but recent versions of ZSH come with a function
+# called bashcompinit that will create a complete in ZSH. If the user is in
+# ZSH, load and run bashcompinit before calling the complete function.
+if [[ -n ${ZSH_VERSION-} ]]; then
+  autoload -U +X bashcompinit && bashcompinit
+fi
+
 complete -o nospace -F _awsd_completion "${AWSD_CMD}"

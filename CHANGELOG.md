@@ -1,3 +1,6 @@
+## v0.1.0 (May 2, 2024)
+* Increase zsh autocompletion compatibilty.
+
 ## v0.0.9 (April 4, 2024)
 * Fixes issue with help command shorthand flag `-h`. [#20] thanks @Masamerc
 
