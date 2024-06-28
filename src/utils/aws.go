@@ -1,44 +1,33 @@
 package utils
 
 import (
-	"bufio"
+	"gopkg.in/ini.v1"
 	"log"
-	"os"
-	"regexp"
 	"sort"
+	"strings"
+)
+
+const (
+	profilePrefix  = "profile"
+	defaultProfile = "default"
 )
 
 func GetProfiles() []string {
 	profileFileLocation := GetCurrentProfileFile()
-	profiles := make([]string, 0)
-
-	file, err := os.Open(profileFileLocation)
+	cfg, err := ini.Load(profileFileLocation)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to load profiles: %v", err)
 	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	r, err := regexp.Compile(`\[profile .*]`)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for scanner.Scan() {
-		if r.MatchString(scanner.Text()) {
-			s := scanner.Text()
-			reg := regexp.MustCompile(`(\[profile )|(])`)
-			res := reg.ReplaceAllString(s, "")
-			profiles = append(profiles, res)
+	sections := cfg.SectionStrings()
+	profiles := make([]string, 0, len(sections)+1)
+	for _, section := range sections {
+		if strings.HasPrefix(section, profilePrefix) {
+			trimmedProfile := strings.TrimPrefix(section, profilePrefix)
+			trimmedProfile = strings.TrimSpace(trimmedProfile)
+			profiles = append(profiles, trimmedProfile)
 		}
 	}
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
-
-	profiles = AppendIfNotExists(profiles, "default")
+	profiles = AppendIfNotExists(profiles, defaultProfile)
 	sort.Strings(profiles)
 	return profiles
 }
