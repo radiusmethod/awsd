@@ -1,3 +1,6 @@
+## v0.1.2 (UNRELEASED)
+* Added PowerShell support. [#19] thanks, @jinxiao
+
 ## v0.1.1 (June 28, 2024)
 * Replaced regular expressions with the `ini` package for extracting profiles from AWS config files.
 * Fixed an issue where extra spaces between the "profile" keyword and the profile name could prevent the profile from being set.
