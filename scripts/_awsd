@@ -10,7 +10,7 @@ else
   AWS_PROFILE="$AWS_PROFILE" _awsd_prompt "$@"
 fi
 
-selected_profile="$(cat ~/.awsd)"
+selected_profile="$(cat ~/.awsd 2>/dev/null || touch ~/.awsd && cat ~/.awsd)"
 
 if [ -z "$selected_profile" ]
 then
