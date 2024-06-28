@@ -14,6 +14,7 @@ awsd is a command-line utility that allows you to easily switch between AWS Prof
     - [Homebrew](#homebrew)
     - [Makefile](#makefile)
     - [To Finish Installation](#to-finish-installation)
+    - [Upgrading](#upgrading)
 - [Usage](#usage)
     - [Switching AWS Profiles](#switching-aws-profiles)
     - [Persist Profile across new shells](#persist-profile-across-new-shells)
@@ -48,6 +49,13 @@ alias awsd="source _awsd"
 ```
 
 Ex. `echo 'alias awsd="source _awsd"' >> ~/.zshrc`
+
+### Upgrading
+Upgrading consists of just doing a brew update and brew upgrade.
+
+```sh
+brew update && brew upgrade radiusmethod/awsd/awsd
+```
 
 ## Usage
 
