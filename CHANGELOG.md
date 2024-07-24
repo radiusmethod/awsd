@@ -1,5 +1,6 @@
-## v0.1.2 (UNRELEASED)
+## v0.1.2 (July 24, 2024)
 * Added PowerShell support. [#19] thanks, @jinxiao
+* Ensure the ~/.awsd file exists before attempting to read its contents to prevent errors.
 
 ## v0.1.1 (June 28, 2024)
 * Replaced regular expressions with the `ini` package for extracting profiles from AWS config files.
