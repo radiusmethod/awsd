@@ -33,7 +33,7 @@ jobs:
           echo "RELEASE_TYPE=${RELEASE_TYPE}" >> $GITHUB_ENV
 
       - name: Create Release 🎉
-        uses: ncipollo/release-action@v1.14.0
+        uses: ncipollo/release-action@v1.15.0
         if: github.ref_type == 'tag'
         with:
           bodyFile: "changelog.txt"
