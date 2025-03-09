@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"github.com/manifoldco/promptui/list"
+	"github.com/radiusmethod/promptui/list"
 	"os"
 	"strings"
 )

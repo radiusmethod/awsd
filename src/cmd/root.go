@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/manifoldco/promptui"
 	"github.com/radiusmethod/awsd/src/utils"
+	"github.com/radiusmethod/promptui"
 	"github.com/spf13/cobra"
 	"log"
 	"os"
