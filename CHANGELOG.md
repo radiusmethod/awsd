@@ -1,3 +1,6 @@
+## v0.1.3 (March 9, 2025)
+* Adds circular scrolling
+
 ## v0.1.2 (July 24, 2024)
 * Added PowerShell support. [#19] thanks, @jinxiao
 * Ensure the ~/.awsd file exists before attempting to read its contents to prevent errors.
