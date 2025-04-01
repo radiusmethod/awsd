@@ -26,7 +26,10 @@ func init() {
 }
 
 func runProfileLister() error {
-	profiles := utils.GetProfiles()
+	profiles, err := utils.GetProfiles()
+	if err != nil {
+		return err
+	}
 	for _, p := range profiles {
 		fmt.Println(p)
 	}
