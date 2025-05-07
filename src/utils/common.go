@@ -16,14 +16,18 @@ func TouchFile(name string) error {
 }
 
 func WriteFile(config, loc string) error {
-	if err := TouchFile(fmt.Sprintf("%s/.awsd", GetHomeDir())); err != nil {
+	homeDir, err := GetHomeDir()
+	if err != nil {
+		return err
+	}
+	if err := TouchFile(fmt.Sprintf("%s/.awsd", homeDir)); err != nil {
 		return err
 	}
 	s := []byte("")
 	if config != "default" {
 		s = []byte(config)
 	}
-	err := os.WriteFile(fmt.Sprintf("%s/.awsd", loc), s, 0644)
+	err = os.WriteFile(fmt.Sprintf("%s/.awsd", loc), s, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -49,25 +53,30 @@ func CheckError(err error) {
 	}
 }
 
-func GetHomeDir() string {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		log.Fatalf("Error getting user home directory: %v\n", err)
+func GetHomeDir() (string, error) {
+	if homeDir := os.Getenv("HOME"); homeDir != "" {
+		return homeDir, nil
 	}
-	return homeDir
+	if homeDir, err := os.UserHomeDir(); err == nil {
+		return homeDir, nil
+	}
+	return "", fmt.Errorf("error getting user home directory: $HOME is not defined and os.UserHomeDir() failed")
 }
 
 func GetProfileFileLocation() string {
-	configFileLocation := filepath.Join(GetHomeDir(), ".aws")
-	if IsDirectoryExists(configFileLocation) {
-		return filepath.Join(configFileLocation)
+	homeDir, err := GetHomeDir()
+	if err != nil {
+		log.Fatal(err)
 	}
-	log.Fatalf("~/.aws directory does not exist!")
-	return ""
+	return filepath.Join(homeDir, ".aws")
 }
 
 func GetCurrentProfileFile() string {
-	return GetEnv("AWS_CONFIG_FILE", filepath.Join(GetHomeDir(), ".aws/config"))
+	homeDir, err := GetHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return GetEnv("AWS_CONFIG_FILE", filepath.Join(homeDir, ".aws/config"))
 }
 
 func IsDirectoryExists(path string) bool {
