@@ -1,0 +1,34 @@
+[default]
+aws_access_key_id = test_access_key
+aws_secret_access_key = test_secret_key
+region = us-east-1
+
+[profile dev]
+aws_access_key_id = dev_access_key
+aws_secret_access_key = dev_secret_key
+region = us-west-2
+
+[profile dev.admin]
+aws_access_key_id = dev_admin_key
+aws_secret_access_key = dev_admin_secret
+region = us-west-2
+
+[profile dev.readonly]
+aws_access_key_id = dev_readonly_key
+aws_secret_access_key = dev_readonly_secret
+region = us-west-2
+
+[profile prod]
+aws_access_key_id = prod_access_key
+aws_secret_access_key = prod_secret_key
+region = eu-west-1
+
+[profile prod.admin]
+aws_access_key_id = prod_admin_key
+aws_secret_access_key = prod_admin_secret
+region = eu-west-1
+
+[profile prod.readonly]
+aws_access_key_id = prod_readonly_key
+aws_secret_access_key = prod_readonly_secret
+region = eu-west-1 

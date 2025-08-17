@@ -1,0 +1,14 @@
+[default]
+aws_access_key_id = test_access_key
+aws_secret_access_key = test_secret_key
+region = us-east-1
+
+[profile dev]
+aws_access_key_id = dev_access_key
+aws_secret_access_key = dev_secret_key
+region = us-west-2
+
+[profile prod]
+aws_access_key_id = prod_access_key
+aws_secret_access_key = prod_secret_key
+region = eu-west-1 
