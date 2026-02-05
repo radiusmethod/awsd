@@ -1,0 +1,10 @@
+.git
+.github
+.gitignore
+*.md
+!go.mod
+LICENSE
+assets
+docs
+bin
+_awsd_prompt
