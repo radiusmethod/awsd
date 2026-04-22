@@ -1,10 +1,10 @@
 package utils
 
 import (
-	"gopkg.in/ini.v1"
-	"log"
 	"sort"
 	"strings"
+
+	"gopkg.in/ini.v1"
 )
 
 const (
@@ -12,11 +12,11 @@ const (
 	defaultProfile = "default"
 )
 
-func GetProfiles() []string {
+func GetProfiles() ([]string, error) {
 	profileFileLocation := GetCurrentProfileFile()
 	cfg, err := ini.Load(profileFileLocation)
 	if err != nil {
-		log.Fatalf("Failed to load profiles: %v", err)
+		return nil, err
 	}
 	sections := cfg.SectionStrings()
 	profiles := make([]string, 0, len(sections)+1)
@@ -29,5 +29,5 @@ func GetProfiles() []string {
 	}
 	profiles = AppendIfNotExists(profiles, defaultProfile)
 	sort.Strings(profiles)
-	return profiles
+	return profiles, nil
 }
