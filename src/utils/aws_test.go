@@ -9,34 +9,26 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func setupTestEnvironment(t *testing.T) (string, func()) {
-	origHome := os.Getenv("HOME")
-	origConfigFile := os.Getenv("AWS_CONFIG_FILE")
-
+func setupTestEnvironment(t *testing.T) string {
+	t.Helper()
 	tempDir := testutils.CreateTempDir(t)
+	t.Cleanup(func() { testutils.CleanupTempDir(t, tempDir) })
 
 	awsDir := filepath.Join(tempDir, ".aws")
 	err := os.MkdirAll(awsDir, 0755)
 	assert.NoError(t, err)
 
-	os.Setenv("HOME", tempDir)
-	os.Setenv("AWS_CONFIG_FILE", filepath.Join(tempDir, "config"))
+	t.Setenv("HOME", tempDir)
+	t.Setenv("AWS_CONFIG_FILE", filepath.Join(tempDir, "config"))
 
-	cleanup := func() {
-		os.Setenv("HOME", origHome)
-		os.Setenv("AWS_CONFIG_FILE", origConfigFile)
-		testutils.CleanupTempDir(t, tempDir)
-	}
-
-	return tempDir, cleanup
+	return tempDir
 }
 
 func TestGetProfiles(t *testing.T) {
-	tempDir, cleanup := setupTestEnvironment(t)
-	defer cleanup()
+	tempDir := setupTestEnvironment(t)
 
 	configPath := testutils.CreateMockAWSConfig(t, tempDir)
-	os.Setenv("AWS_CONFIG_FILE", configPath)
+	t.Setenv("AWS_CONFIG_FILE", configPath)
 
 	profiles, err := GetProfiles()
 	assert.NoError(t, err, "Should not return error")
@@ -46,8 +38,7 @@ func TestGetProfiles(t *testing.T) {
 }
 
 func TestGetProfilesWithComplexConfig(t *testing.T) {
-	tempDir, cleanup := setupTestEnvironment(t)
-	defer cleanup()
+	tempDir := setupTestEnvironment(t)
 
 	complexConfigPath := filepath.Join("..", "..", "testdata", "aws_config_examples", "complex_config")
 	configContent, err := os.ReadFile(complexConfigPath)
@@ -76,8 +67,7 @@ func TestGetProfilesWithComplexConfig(t *testing.T) {
 }
 
 func TestGetProfilesWithMalformedConfig(t *testing.T) {
-	tempDir, cleanup := setupTestEnvironment(t)
-	defer cleanup()
+	tempDir := setupTestEnvironment(t)
 
 	configPath := filepath.Join(tempDir, "config")
 	malformedContent := `[default]
@@ -100,11 +90,10 @@ region = us-west-2`
 }
 
 func TestGetProfilesWithError(t *testing.T) {
-	tempDir, cleanup := setupTestEnvironment(t)
-	defer cleanup()
+	tempDir := setupTestEnvironment(t)
 
 	configPath := testutils.CreateMockAWSConfig(t, tempDir)
-	os.Setenv("AWS_CONFIG_FILE", configPath)
+	t.Setenv("AWS_CONFIG_FILE", configPath)
 
 	profiles, err := GetProfiles()
 	assert.NoError(t, err, "Should not return error for valid config")
@@ -129,7 +118,7 @@ region = us-west-2`
 	assert.Nil(t, profiles, "Should return nil profiles for malformed config")
 	assert.Contains(t, err.Error(), "unclosed section", "Error should mention unclosed section")
 
-	os.Setenv("AWS_CONFIG_FILE", "/nonexistent/config")
+	t.Setenv("AWS_CONFIG_FILE", "/nonexistent/config")
 	profiles, err = GetProfiles()
 	assert.Error(t, err, "Should return error for non-existent config")
 	assert.Nil(t, profiles, "Should return nil profiles for non-existent config")

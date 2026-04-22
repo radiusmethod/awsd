@@ -22,8 +22,7 @@ func TestRunProfileLister(t *testing.T) {
 	defer testutils.CleanupTempDir(t, tempDir)
 
 	configPath := testutils.CreateMockAWSConfig(t, tempDir)
-	testutils.SetTestEnv(t, "AWS_CONFIG_FILE", configPath)
-	defer testutils.UnsetTestEnv(t, "AWS_CONFIG_FILE")
+	t.Setenv("AWS_CONFIG_FILE", configPath)
 
 	err := runProfileLister()
 	assert.NoError(t, err)
@@ -34,11 +33,8 @@ func TestListCommandIntegration(t *testing.T) {
 	defer testutils.CleanupTempDir(t, tempDir)
 
 	configPath := testutils.CreateMockAWSConfig(t, tempDir)
-	testutils.SetTestEnv(t, "AWS_CONFIG_FILE", configPath)
-	defer testutils.UnsetTestEnv(t, "AWS_CONFIG_FILE")
-
-	testutils.SetTestEnv(t, "HOME", tempDir)
-	defer testutils.UnsetTestEnv(t, "HOME")
+	t.Setenv("AWS_CONFIG_FILE", configPath)
+	t.Setenv("HOME", tempDir)
 
 	cmd := &cobra.Command{
 		Use:   "awsd",

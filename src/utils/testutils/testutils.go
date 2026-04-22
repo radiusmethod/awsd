@@ -49,15 +49,9 @@ func CleanupTempDir(t *testing.T, dir string) {
 	}
 }
 
-// SetTestEnv sets up test environment variables
-func SetTestEnv(t *testing.T, key, value string) {
-	t.Helper()
-	if err := os.Setenv(key, value); err != nil {
-		t.Fatalf("Failed to set environment variable %s: %v", key, err)
-	}
-}
-
-// UnsetTestEnv removes test environment variables
+// UnsetTestEnv removes an environment variable and checks the error.
+// Use t.Setenv for set/auto-restore; this exists for tests that need to
+// explicitly observe the "unset" state mid-test.
 func UnsetTestEnv(t *testing.T, key string) {
 	t.Helper()
 	if err := os.Unsetenv(key); err != nil {

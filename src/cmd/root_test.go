@@ -56,11 +56,8 @@ func TestDirectProfileSwitch(t *testing.T) {
 	defer testutils.CleanupTempDir(t, tempDir)
 
 	configPath := testutils.CreateMockAWSConfig(t, tempDir)
-	testutils.SetTestEnv(t, "AWS_CONFIG_FILE", configPath)
-	defer testutils.UnsetTestEnv(t, "AWS_CONFIG_FILE")
-
-	testutils.SetTestEnv(t, "HOME", tempDir)
-	defer testutils.UnsetTestEnv(t, "HOME")
+	t.Setenv("AWS_CONFIG_FILE", configPath)
+	t.Setenv("HOME", tempDir)
 
 	tests := []struct {
 		name          string

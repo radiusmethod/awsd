@@ -27,15 +27,7 @@ func TestWriteFile(t *testing.T) {
 	tempDir := testutils.CreateTempDir(t)
 	defer testutils.CleanupTempDir(t, tempDir)
 
-	origHome := os.Getenv("HOME")
-	defer func() {
-		if origHome != "" {
-			os.Setenv("HOME", origHome)
-		} else {
-			os.Unsetenv("HOME")
-		}
-	}()
-	testutils.SetTestEnv(t, "HOME", tempDir)
+	t.Setenv("HOME", tempDir)
 
 	err := WriteFile("test-profile", tempDir)
 	assert.NoError(t, err, "Should write file without error")
@@ -54,8 +46,7 @@ func TestWriteFile(t *testing.T) {
 }
 
 func TestGetEnv(t *testing.T) {
-	testutils.SetTestEnv(t, "TEST_VAR", "test-value")
-	defer testutils.UnsetTestEnv(t, "TEST_VAR")
+	t.Setenv("TEST_VAR", "test-value")
 
 	value := GetEnv("TEST_VAR", "fallback")
 	assert.Equal(t, "test-value", value, "Should return environment variable value")
@@ -65,20 +56,12 @@ func TestGetEnv(t *testing.T) {
 }
 
 func TestGetHomeDir(t *testing.T) {
-	origHome := os.Getenv("HOME")
-	defer func() {
-		if origHome != "" {
-			os.Setenv("HOME", origHome)
-		} else {
-			os.Unsetenv("HOME")
-		}
-	}()
-
-	testutils.SetTestEnv(t, "HOME", "/test/home")
+	t.Setenv("HOME", "/test/home")
 	homeDir, err := GetHomeDir()
 	assert.NoError(t, err, "Should not return error when HOME is set")
 	assert.Equal(t, "/test/home", homeDir, "Should return HOME environment variable value")
 
+	// t.Setenv can't unset, so go via the helper which checks the error.
 	testutils.UnsetTestEnv(t, "HOME")
 	homeDir, err = GetHomeDir()
 	if err != nil {
@@ -89,27 +72,17 @@ func TestGetHomeDir(t *testing.T) {
 }
 
 func TestGetProfileFileLocation(t *testing.T) {
-	origHome := os.Getenv("HOME")
-	defer func() {
-		if origHome != "" {
-			os.Setenv("HOME", origHome)
-		} else {
-			os.Unsetenv("HOME")
-		}
-	}()
-
 	tempDir := testutils.CreateTempDir(t)
 	defer testutils.CleanupTempDir(t, tempDir)
 
-	testutils.SetTestEnv(t, "HOME", tempDir)
+	t.Setenv("HOME", tempDir)
 	expectedPath := filepath.Join(tempDir, ".aws")
 	actualPath := GetProfileFileLocation()
 	assert.Equal(t, expectedPath, actualPath, "Should return correct .aws directory path")
 }
 
 func TestGetCurrentProfileFile(t *testing.T) {
-	testutils.SetTestEnv(t, "AWS_CONFIG_FILE", "/test/config")
-	defer testutils.UnsetTestEnv(t, "AWS_CONFIG_FILE")
+	t.Setenv("AWS_CONFIG_FILE", "/test/config")
 
 	file := GetCurrentProfileFile()
 	assert.Equal(t, "/test/config", file, "Should return AWS_CONFIG_FILE value")
