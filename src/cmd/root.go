@@ -2,11 +2,12 @@ package cmd
 
 import (
 	"fmt"
+	"log"
+	"os"
+
 	"github.com/radiusmethod/awsd/src/utils"
 	"github.com/radiusmethod/promptui"
 	"github.com/spf13/cobra"
-	"log"
-	"os"
 )
 
 var rootCmd = &cobra.Command{
@@ -39,7 +40,10 @@ func runRootCmd() {
 }
 
 func runProfileSwitcher() error {
-	profiles := utils.GetProfiles()
+	profiles, err := utils.GetProfiles()
+	if err != nil {
+		return err
+	}
 	fmt.Printf(utils.NoticeColor, "AWS Profile Switcher\n")
 	profile, err := getProfileFromPrompt(profiles)
 	if err != nil {
@@ -49,7 +53,11 @@ func runProfileSwitcher() error {
 	fmt.Printf(utils.NoticeColor, "? ")
 	fmt.Printf(utils.CyanColor, profile)
 	fmt.Println()
-	return utils.WriteFile(profile, utils.GetHomeDir())
+	homeDir, err := utils.GetHomeDir()
+	if err != nil {
+		return err
+	}
+	return utils.WriteFile(profile, homeDir)
 }
 
 func shouldRunDirectProfileSwitch() bool {
@@ -58,12 +66,19 @@ func shouldRunDirectProfileSwitch() bool {
 }
 
 func directProfileSwitch(desiredProfile string) error {
-	profiles := utils.GetProfiles()
+	profiles, err := utils.GetProfiles()
+	if err != nil {
+		return err
+	}
 	if utils.Contains(profiles, desiredProfile) {
 		printColoredMessage("Profile ", utils.PromptColor)
 		printColoredMessage(desiredProfile, utils.CyanColor)
 		printColoredMessage(" set.\n", utils.PromptColor)
-		return utils.WriteFile(desiredProfile, utils.GetHomeDir())
+		homeDir, err := utils.GetHomeDir()
+		if err != nil {
+			return err
+		}
+		return utils.WriteFile(desiredProfile, homeDir)
 	}
 	printColoredMessage("WARNING: Profile ", utils.NoticeColor)
 	printColoredMessage(desiredProfile, utils.CyanColor)

@@ -23,3 +23,11 @@ uninstall:     ## Uninstall Target
 	rm -f ${BINDIR}/_awsd
 	rm -f ${BINDIR}/_awsd_autocomplete
 	rm -f ${BINDIR}/_awsd_prompt
+
+.PHONY: test test-coverage
+test:          ## Run tests
+	go test ./...
+
+test-coverage: ## Run tests with coverage report
+	go test ./... -coverprofile=coverage.out
+	go tool cover -func=coverage.out
