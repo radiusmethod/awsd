@@ -11,10 +11,14 @@ import (
 func TestListCommand(t *testing.T) {
 	cmd := listCmd
 	assert.NotNil(t, cmd)
-	assert.Equal(t, "list", cmd.Use)
-	assert.Equal(t, "List AWS profiles command.", cmd.Short)
-	assert.Equal(t, "This lists all your AWS profiles.", cmd.Long)
+	assert.Equal(t, "list [profiles|regions]", cmd.Use)
+	assert.Equal(t, "List AWS profiles or regions.", cmd.Short)
 	assert.Equal(t, []string{"l"}, cmd.Aliases)
+}
+
+func TestRunRegionLister(t *testing.T) {
+	err := runRegionLister()
+	assert.NoError(t, err)
 }
 
 func TestRunProfileLister(t *testing.T) {

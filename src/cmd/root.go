@@ -21,6 +21,11 @@ var rootCmd = &cobra.Command{
 	},
 }
 
+// RootCmd returns the root cobra command. Used by docs generation.
+func RootCmd() *cobra.Command {
+	return rootCmd
+}
+
 // Entry point for the CLI tool
 func Execute() {
 	if shouldRunDirectProfileSwitch() {
@@ -61,7 +66,7 @@ func runProfileSwitcher() error {
 }
 
 func shouldRunDirectProfileSwitch() bool {
-	invalidProfiles := []string{"l", "list", "completion", "help", "--help", "-h", "v", "version"}
+	invalidProfiles := []string{"l", "list", "set", "unset", "completion", "help", "--help", "-h", "v", "version"}
 	return len(os.Args) > 1 && !utils.Contains(invalidProfiles, os.Args[1])
 }
 

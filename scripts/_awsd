@@ -11,11 +11,39 @@ else
 fi
 
 touch ~/.awsd
-selected_profile="$(cat ~/.awsd)"
 
-if [ -z "$selected_profile" ]
+unset _awsd_profile _awsd_region _awsd_has_region
+
+# Detect legacy single-line format (no '=' anywhere): whole file is a profile name.
+if grep -q '=' ~/.awsd
+then
+  while IFS='=' read -r _awsd_k _awsd_v
+  do
+    case "$_awsd_k" in
+      profile) _awsd_profile=$_awsd_v ;;
+      region)  _awsd_region=$_awsd_v; _awsd_has_region=1 ;;
+    esac
+  done < ~/.awsd
+else
+  _awsd_profile="$(cat ~/.awsd)"
+fi
+
+if [ -z "$_awsd_profile" ]
 then
   unset AWS_PROFILE
 else
-  export AWS_PROFILE="$selected_profile"
+  export AWS_PROFILE="$_awsd_profile"
 fi
+
+if [ -n "$_awsd_has_region" ]
+then
+  if [ -z "$_awsd_region" ]
+  then
+    unset AWS_REGION AWS_DEFAULT_REGION
+  else
+    export AWS_REGION="$_awsd_region"
+    export AWS_DEFAULT_REGION="$_awsd_region"
+  fi
+fi
+
+unset _awsd_profile _awsd_region _awsd_has_region _awsd_k _awsd_v

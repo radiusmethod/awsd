@@ -24,9 +24,12 @@ uninstall:     ## Uninstall Target
 	rm -f ${BINDIR}/_awsd_autocomplete
 	rm -f ${BINDIR}/_awsd_prompt
 
-.PHONY: test test-coverage
+.PHONY: test test-coverage docs
 test:          ## Run tests
 	go test ./...
+
+docs:          ## Regenerate docs/*.md from the cobra command tree
+	cd tools/gendocs && go run . ../../docs
 
 test-coverage: ## Run tests with coverage report
 	go test ./... -coverprofile=coverage.out
