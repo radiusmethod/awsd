@@ -17,7 +17,8 @@ awsd is a command-line utility that allows you to easily switch between AWS Prof
     - [Upgrading](#upgrading)
 - [Usage](#usage)
     - [Switching AWS Profiles](#switching-aws-profiles)
-    - [Persist Profile across new shells](#persist-profile-across-new-shells)
+    - [Switching AWS Regions](#switching-aws-regions)
+    - [Persist Profile and Region across new shells](#persist-profile-and-region-across-new-shells)
     - [Show your AWS Profile in your shell prompt](#show-your-aws-profile-in-your-shell-prompt)
     - [Add autocompletion](#add-autocompletion)
     - [TL;DR (full config example)](#tldr-full-config-example)
@@ -77,11 +78,37 @@ awsd
 This command will display a list of available profiles files in your `~/.aws/config` file or from `AWS_CONFIG_FILE`
 if you have that set. It expects for you to have named profiles in your AWS config file. Select the one you want to use.
 
-### Persist Profile across new shells
-To persist the set profile when you open new terminal windows, you can add the following to your bash profile or zshrc.
+### Switching AWS Regions
+
+You can also switch your active AWS region. The interactive picker fuzzy-matches the same way the profile picker does.
 
 ```bash
-export AWS_PROFILE=$(cat ~/.awsd)
+> awsd set region us-east-1
+Region us-east-1 set.
+
+> awsd set region          # interactive picker
+> awsd list regions        # list known regions
+> awsd unset region        # clear the active region
+```
+
+Setting a region exports `AWS_REGION` and `AWS_DEFAULT_REGION` in the calling shell. Profile and region are independent — `awsd set profile` does not change your region, and vice versa.
+
+### Persist Profile and Region across new shells
+To persist the active profile (and region) when you open new terminal windows, add the following to your bash profile or zshrc. It handles both the current `key=value` format and the legacy single-line format.
+
+```bash
+if [ -f ~/.awsd ]; then
+  if grep -q '=' ~/.awsd; then
+    while IFS='=' read -r k v; do
+      case "$k" in
+        profile) [ -n "$v" ] && export AWS_PROFILE="$v" ;;
+        region)  [ -n "$v" ] && export AWS_REGION="$v" AWS_DEFAULT_REGION="$v" ;;
+      esac
+    done < ~/.awsd
+  else
+    export AWS_PROFILE=$(cat ~/.awsd)
+  fi
+fi
 ```
 
 ### Show your AWS Profile in your shell prompt
@@ -105,27 +132,30 @@ PROMPT='OTHER_PROMPT_STUFF $(aws_info)'
 ```
 
 ### Add autocompletion
-You can add autocompletion when passing config as argument by adding the following to your bash profile or zshrc file.
-`source _awsd_autocomplete`
+Source the installed completion script from your bash profile or zshrc:
 
 ```bash
-[ "$BASH_VERSION" ] && AWSD_CMD="awsd" || AWSD_CMD="_awsd"
-_awsd_completion() {
-    local cur=${COMP_WORDS[COMP_CWORD]}
-    local suggestions=$(awsd list)
-    COMPREPLY=($(compgen -W "$suggestions" -- $cur))
-    return 0
-}
-complete -o nospace -F _awsd_completion "${AWSD_CMD}"
+source _awsd_autocomplete
 ```
 
-Now you can do `awsd my-p` and hit tab and if you had a profile `my-profile` it would autocomplete and find it.
+This completes profile names on `awsd <TAB>`, the `set`/`unset`/`list` subcommands, and their arguments — e.g. `awsd set region <TAB>` lists regions, `awsd set profile <TAB>` lists profiles.
 
 ### TL;DR (full config example)
 ```bash
 alias awsd="source _awsd"
-source _awsd_autocomplete
-export AWS_PROFILE=$(cat ~/.awsd)
+source ~/bin/awsd_autocomplete.sh
+if [ -f ~/.awsd ]; then
+  if grep -q '=' ~/.awsd; then
+    while IFS='=' read -r k v; do
+      case "$k" in
+        profile) [ -n "$v" ] && export AWS_PROFILE="$v" ;;
+        region)  [ -n "$v" ] && export AWS_REGION="$v" AWS_DEFAULT_REGION="$v" ;;
+      esac
+    done < ~/.awsd
+  else
+    export AWS_PROFILE=$(cat ~/.awsd)
+  fi
+fi
 ```
 
 ## Contributing
