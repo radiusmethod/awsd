@@ -35,14 +35,95 @@ func TestWriteFile(t *testing.T) {
 	filePath := filepath.Join(tempDir, ".awsd")
 	content, err := os.ReadFile(filePath)
 	assert.NoError(t, err, "Should read file without error")
-	assert.Equal(t, "test-profile", string(content), "File content should match")
+	assert.Equal(t, "profile=test-profile\n", string(content), "File content should match")
 
 	err = WriteFile("default", tempDir)
 	assert.NoError(t, err, "Should write default profile without error")
 
 	content, err = os.ReadFile(filePath)
 	assert.NoError(t, err, "Should read file without error")
-	assert.Equal(t, "", string(content), "Default profile should write empty string")
+	assert.Equal(t, "profile=\n", string(content), "Default profile should write empty profile value")
+}
+
+func TestWriteFilePreservesRegion(t *testing.T) {
+	tempDir := testutils.CreateTempDir(t)
+	defer testutils.CleanupTempDir(t, tempDir)
+
+	t.Setenv("HOME", tempDir)
+
+	assert.NoError(t, WriteRegion("us-east-1", tempDir))
+	assert.NoError(t, WriteFile("dev", tempDir))
+
+	s, err := ReadState(tempDir)
+	assert.NoError(t, err)
+	assert.Equal(t, "dev", s.Profile)
+	assert.Equal(t, "us-east-1", s.Region)
+	assert.True(t, s.RegionSet)
+}
+
+func TestWriteRegionPreservesProfile(t *testing.T) {
+	tempDir := testutils.CreateTempDir(t)
+	defer testutils.CleanupTempDir(t, tempDir)
+
+	t.Setenv("HOME", tempDir)
+
+	assert.NoError(t, WriteFile("dev", tempDir))
+	assert.NoError(t, WriteRegion("eu-west-1", tempDir))
+
+	s, err := ReadState(tempDir)
+	assert.NoError(t, err)
+	assert.Equal(t, "dev", s.Profile)
+	assert.Equal(t, "eu-west-1", s.Region)
+}
+
+func TestUnsetRegion(t *testing.T) {
+	tempDir := testutils.CreateTempDir(t)
+	defer testutils.CleanupTempDir(t, tempDir)
+
+	t.Setenv("HOME", tempDir)
+
+	assert.NoError(t, WriteRegion("us-east-1", tempDir))
+	assert.NoError(t, UnsetRegion(tempDir))
+
+	s, err := ReadState(tempDir)
+	assert.NoError(t, err)
+	assert.Equal(t, "", s.Region)
+	assert.True(t, s.RegionSet, "explicit unset should still mark region as set")
+}
+
+func TestReadStateLegacyFormat(t *testing.T) {
+	tempDir := testutils.CreateTempDir(t)
+	defer testutils.CleanupTempDir(t, tempDir)
+
+	filePath := filepath.Join(tempDir, ".awsd")
+	assert.NoError(t, os.WriteFile(filePath, []byte("legacy-profile"), 0644))
+
+	s, err := ReadState(tempDir)
+	assert.NoError(t, err)
+	assert.Equal(t, "legacy-profile", s.Profile)
+	assert.False(t, s.RegionSet)
+}
+
+func TestReadStateEmptyFile(t *testing.T) {
+	tempDir := testutils.CreateTempDir(t)
+	defer testutils.CleanupTempDir(t, tempDir)
+
+	filePath := filepath.Join(tempDir, ".awsd")
+	assert.NoError(t, os.WriteFile(filePath, []byte(""), 0644))
+
+	s, err := ReadState(tempDir)
+	assert.NoError(t, err)
+	assert.Equal(t, "", s.Profile)
+	assert.False(t, s.RegionSet)
+}
+
+func TestReadStateMissingFile(t *testing.T) {
+	tempDir := testutils.CreateTempDir(t)
+	defer testutils.CleanupTempDir(t, tempDir)
+
+	s, err := ReadState(tempDir)
+	assert.NoError(t, err)
+	assert.Equal(t, State{}, s)
 }
 
 func TestGetEnv(t *testing.T) {

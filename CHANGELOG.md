@@ -1,3 +1,9 @@
+## v0.2.0 (April 27, 2026)
+* Added region switching: `awsd set region [name]` (interactive picker if no name given), `awsd unset region`, `awsd list regions`.
+* Added `awsd set profile [name]` and `awsd unset profile` as explicit forms — bare `awsd <profile>` still works.
+* `~/.awsd` now uses a `key=value` format (`profile=...` / `region=...`). Legacy single-line files are still readable; the next write upgrades them.
+* Wrapper now also exports `AWS_DEFAULT_REGION` alongside `AWS_REGION`.
+
 ## v0.1.3 (March 9, 2025)
 * Adds circular scrolling
 

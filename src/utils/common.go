@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func TouchFile(name string) error {
@@ -15,23 +16,126 @@ func TouchFile(name string) error {
 	return file.Close()
 }
 
-func WriteFile(config, loc string) error {
-	homeDir, err := GetHomeDir()
+// State is the persisted contents of ~/.awsd.
+//
+// Profile: empty string means "default" — the wrapper unsets AWS_PROFILE.
+// Region:  paired with RegionSet to distinguish three states:
+//   - RegionSet=false        → no `region=` line; wrapper leaves AWS_REGION alone.
+//   - RegionSet=true, ""     → `region=` with empty value; wrapper unsets AWS_REGION.
+//   - RegionSet=true, "..."  → wrapper exports AWS_REGION (and AWS_DEFAULT_REGION).
+type State struct {
+	Profile   string
+	Region    string
+	RegionSet bool
+}
+
+func statePath(loc string) string {
+	return filepath.Join(loc, ".awsd")
+}
+
+func ReadState(loc string) (State, error) {
+	data, err := os.ReadFile(statePath(loc))
 	if err != nil {
+		if os.IsNotExist(err) {
+			return State{}, nil
+		}
+		return State{}, err
+	}
+	text := strings.TrimRight(string(data), "\n")
+	if text == "" {
+		return State{}, nil
+	}
+
+	hasKV := false
+	for _, line := range strings.Split(text, "\n") {
+		if strings.Contains(line, "=") {
+			hasKV = true
+			break
+		}
+	}
+	if !hasKV {
+		// Legacy single-line: whole file is a profile name.
+		return State{Profile: strings.TrimSpace(text)}, nil
+	}
+
+	var s State
+	for _, line := range strings.Split(text, "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		idx := strings.Index(line, "=")
+		if idx < 0 {
+			continue
+		}
+		key := strings.TrimSpace(line[:idx])
+		val := strings.TrimSpace(line[idx+1:])
+		switch key {
+		case "profile":
+			s.Profile = val
+		case "region":
+			s.Region = val
+			s.RegionSet = true
+		}
+	}
+	return s, nil
+}
+
+func WriteState(s State, loc string) error {
+	path := statePath(loc)
+	if err := TouchFile(path); err != nil {
 		return err
 	}
-	if err := TouchFile(fmt.Sprintf("%s/.awsd", homeDir)); err != nil {
-		return err
+	var b strings.Builder
+	b.WriteString("profile=")
+	b.WriteString(s.Profile)
+	b.WriteString("\n")
+	if s.RegionSet {
+		b.WriteString("region=")
+		b.WriteString(s.Region)
+		b.WriteString("\n")
 	}
-	s := []byte("")
-	if config != "default" {
-		s = []byte(config)
-	}
-	err = os.WriteFile(fmt.Sprintf("%s/.awsd", loc), s, 0644)
-	if err != nil {
+	if err := os.WriteFile(path, []byte(b.String()), 0644); err != nil {
 		log.Fatal(err)
 	}
 	return nil
+}
+
+// WriteFile sets the active profile, preserving any existing region.
+// "default" is stored as an empty profile so the wrapper unsets AWS_PROFILE.
+func WriteFile(config, loc string) error {
+	s, err := ReadState(loc)
+	if err != nil {
+		return err
+	}
+	if config == "default" {
+		s.Profile = ""
+	} else {
+		s.Profile = config
+	}
+	return WriteState(s, loc)
+}
+
+// WriteRegion sets the active region, preserving the existing profile.
+func WriteRegion(region, loc string) error {
+	s, err := ReadState(loc)
+	if err != nil {
+		return err
+	}
+	s.Region = region
+	s.RegionSet = true
+	return WriteState(s, loc)
+}
+
+// UnsetRegion writes an explicit empty region so the wrapper unsets AWS_REGION.
+func UnsetRegion(loc string) error {
+	s, err := ReadState(loc)
+	if err != nil {
+		return err
+	}
+	s.Region = ""
+	s.RegionSet = true
+	return WriteState(s, loc)
 }
 
 func GetEnv(key, fallback string) string {

@@ -36,6 +36,16 @@ func TestShouldRunDirectProfileSwitch(t *testing.T) {
 			expected: false,
 		},
 		{
+			name:     "Set command",
+			args:     []string{"awsd", "set"},
+			expected: false,
+		},
+		{
+			name:     "Unset command",
+			args:     []string{"awsd", "unset"},
+			expected: false,
+		},
+		{
 			name:     "No arguments",
 			args:     []string{"awsd"},
 			expected: false,
@@ -71,7 +81,7 @@ func TestDirectProfileSwitch(t *testing.T) {
 			profile:       "dev",
 			expectError:   false,
 			expectFile:    true,
-			expectContent: "dev",
+			expectContent: "profile=dev\n",
 		},
 		{
 			name:          "Invalid profile",
@@ -85,7 +95,7 @@ func TestDirectProfileSwitch(t *testing.T) {
 			profile:       "default",
 			expectError:   false,
 			expectFile:    true,
-			expectContent: "",
+			expectContent: "profile=\n",
 		},
 	}
 
