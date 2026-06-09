@@ -9,7 +9,7 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o _awsd_prompt
 
-FROM alpine:3.23
+FROM alpine:3.24
 
 RUN adduser -D -u 1000 awsd
 
