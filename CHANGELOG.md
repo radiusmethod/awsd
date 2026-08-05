@@ -1,3 +1,23 @@
+## v0.4.0 (August 5, 2026)
+
+**Breaking.** awsd is now a single binary named `awsd`. Pre-1.0, so no compatibility shims.
+
+* The binary is installed as `awsd`, not `_awsd_prompt`. The generated integration calls it through `command awsd`, which skips the shell function of the same name.
+* Removed `scripts/_awsd`, `scripts/_awsd_autocomplete`, and `scripts/powershell/awsd.ps1`. `make install` now installs one file.
+* Removed the `alias awsd="source _awsd"` setup path. Use `eval "$(awsd init <shell>)"`; see "Upgrading from pre-v0.4.0" in the README.
+* The PowerShell integration resolves the binary with `Get-Command` at load time, since `&` does not bypass a same-named function the way POSIX `command` does.
+* `Makefile_Windows` builds `awsd.exe` and no longer references the deleted PowerShell script.
+* Docker image ships and runs `awsd`.
+
+Releases are now built by GoReleaser:
+
+* Releases ship prebuilt binaries for macOS, Linux, and Windows on amd64 and arm64, with `checksums.txt`. Installing no longer compiles from source.
+* Homebrew distribution moves from a formula to a **cask**, generated on each tag. Reinstall with `brew uninstall awsd && brew install radiusmethod/awsd/awsd` if brew complains about the change.
+* `awsd version` now reports the git tag, injected at build time. `make install` derives it from `git describe`, and a plain `go build` reports `dev`.
+* Prerelease tags must now be SemVer-hyphenated (`v0.5.0-beta1`), not `v0.5.0beta`.
+
+To upgrade: replace your shell config line, then delete any leftover `_awsd_prompt`, `_awsd`, and `_awsd_autocomplete` files from earlier manual installs. Your `~/.awsd` file is unchanged and carries over.
+
 ## v0.3.0 (August 5, 2026)
 * Added `awsd init <shell>` — one line in your rc file (`eval "$(awsd init zsh)"`) now replaces the `awsd` alias, the completion `source`, and the persistence snippet from the README. [#53]
 * Added fish support, and PowerShell tab completion.

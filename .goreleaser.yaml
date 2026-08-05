@@ -1,0 +1,87 @@
+version: 2
+
+project_name: awsd
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: awsd
+    binary: awsd
+    main: .
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      # version is otherwise "dev"; the tag is the source of truth for releases.
+      - -s -w -X github.com/radiusmethod/awsd/src/cmd.version=v{{ .Version }}
+
+archives:
+  - id: awsd
+    ids:
+      - awsd
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - README.md
+      - LICENSE
+      - CHANGELOG.md
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  # Release notes come from CHANGELOG.md via --release-notes in the workflow.
+  disable: true
+
+release:
+  prerelease: auto
+
+homebrew_casks:
+  - name: awsd
+    ids:
+      - awsd
+    repository:
+      owner: radiusmethod
+      name: homebrew-awsd
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    directory: Casks
+    homepage: "https://github.com/radiusmethod/awsd"
+    description: "AWS Profile Switcher in Go"
+    license: "MIT"
+    # Ship binaries even when the tap token is not configured, rather than
+    # failing the whole release. The workflow always defines the variable, so
+    # this is empty rather than missing when the secret is absent.
+    skip_upload: '{{ if .Env.HOMEBREW_TAP_GITHUB_TOKEN }}false{{ else }}true{{ end }}'
+    hooks:
+      post:
+        # The binaries are unsigned, so macOS quarantines them on download and
+        # Gatekeeper refuses to run them. Strip the attribute on install.
+        install: |
+          if system_command("/usr/bin/xattr", args: ["-h"]).exit_status == 0
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/awsd"]
+          end
+    caveats: |
+      To finish setting up awsd, add the line for your shell to its startup file:
+
+        zsh          eval "$(awsd init zsh)"
+        bash         eval "$(awsd init bash)"
+        fish         awsd init fish | source
+        PowerShell   awsd init powershell | Out-String | Invoke-Expression
+
+      Then open a new terminal, or source that file.
+
+      Upgrading from before v0.4.0? Remove any 'alias awsd="source _awsd"' line
+      from your shell config, and delete leftover _awsd_prompt, _awsd, and
+      _awsd_autocomplete files from earlier manual installs.

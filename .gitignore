@@ -16,3 +16,4 @@ coverage.*
 # vendor/
 bin/
 tools/gendocs/gendocs
+dist/
