@@ -1,28 +1,26 @@
 BINDIR = /usr/local/bin
+VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
+LDFLAGS = -s -w -X github.com/radiusmethod/awsd/src/cmd.version=$(VERSION)
 
 help:          ## Show this help
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
 install:       ## Install Target
-	GOOS= GOARCH= GOARM= GOFLAGS= go build -o ${BINDIR}/_awsd_prompt
-	cp scripts/_awsd ${BINDIR}/_awsd
-	cp scripts/_awsd_autocomplete ${BINDIR}/_awsd_autocomplete
-	@echo " -=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- "
-	@echo "                                      "
-	@echo "     To Finish Installation add       "
-	@echo "                                      "
-	@echo "   eval \"\$$(_awsd_prompt init zsh)\"    "
-	@echo "                                      "
-	@echo "   to your zshrc (or bash profile,    "
-	@echo "   with 'init bash') then open a new  "
-	@echo "   terminal or source that file       "
-	@echo "                                      "
-	@echo " -=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- "
+	GOOS= GOARCH= GOARM= GOFLAGS= go build -ldflags="$(LDFLAGS)" -o ${BINDIR}/awsd
+	@echo " -=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=- "
+	@echo "                                    "
+	@echo "    To Finish Installation add      "
+	@echo "                                    "
+	@echo "    eval \"\$$(awsd init zsh)\"         "
+	@echo "                                    "
+	@echo "  to your zshrc (or bash profile,   "
+	@echo "  with 'init bash') then open a new "
+	@echo "  terminal or source that file      "
+	@echo "                                    "
+	@echo " -=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=- "
 
 uninstall:     ## Uninstall Target
-	rm -f ${BINDIR}/_awsd
-	rm -f ${BINDIR}/_awsd_autocomplete
-	rm -f ${BINDIR}/_awsd_prompt
+	rm -f ${BINDIR}/awsd
 
 .PHONY: test test-coverage docs
 test:          ## Run tests

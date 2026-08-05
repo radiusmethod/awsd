@@ -166,22 +166,22 @@ func TestInitScript(t *testing.T) {
 		{
 			name:     "bash",
 			shell:    Bash,
-			contains: []string{"awsd() {", `eval "$(command _awsd_prompt shellenv bash)"`, "complete -o nospace -F _awsd_completion awsd"},
+			contains: []string{"awsd() {", `eval "$(command awsd shellenv bash)"`, "complete -o nospace -F _awsd_completion awsd"},
 		},
 		{
 			name:     "zsh",
 			shell:    Zsh,
-			contains: []string{"awsd() {", `eval "$(command _awsd_prompt shellenv zsh)"`, "bashcompinit"},
+			contains: []string{"awsd() {", `eval "$(command awsd shellenv zsh)"`, "bashcompinit"},
 		},
 		{
 			name:     "fish",
 			shell:    Fish,
-			contains: []string{"function awsd", "command _awsd_prompt shellenv fish | source", "complete -c awsd"},
+			contains: []string{"function awsd", "command awsd shellenv fish | source", "complete -c awsd"},
 		},
 		{
 			name:     "powershell",
 			shell:    PowerShell,
-			contains: []string{"function awsd", "& _awsd_prompt shellenv powershell | Out-String | Invoke-Expression", "Register-ArgumentCompleter"},
+			contains: []string{"function awsd", "& $global:AwsdBin shellenv powershell | Out-String | Invoke-Expression", "Register-ArgumentCompleter"},
 		},
 	}
 

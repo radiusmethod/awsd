@@ -12,10 +12,11 @@ awsd is a command-line utility that allows you to easily switch between AWS Prof
 
 - [Installation](#installation)
     - [Homebrew](#homebrew)
+    - [Prebuilt binary](#prebuilt-binary)
     - [Makefile](#makefile)
     - [To Finish Installation](#to-finish-installation)
     - [Upgrading](#upgrading)
-    - [Upgrading from pre-v0.3.0](#upgrading-from-pre-v030)
+    - [Upgrading from pre-v0.4.0](#upgrading-from-pre-v040)
 - [Usage](#usage)
     - [Switching AWS Profiles](#switching-aws-profiles)
     - [Switching AWS Regions](#switching-aws-regions)
@@ -27,8 +28,6 @@ awsd is a command-line utility that allows you to easily switch between AWS Prof
 
 ## Installation
 
-Make sure you have Go installed. You can download it from [here](https://golang.org/dl/).
-
 ### Homebrew
 
 ```sh
@@ -36,7 +35,15 @@ brew tap radiusmethod/awsd
 brew install awsd
 ```
 
+### Prebuilt binary
+
+Grab the archive for your platform from the
+[latest release](https://github.com/radiusmethod/awsd/releases/latest), then put `awsd` somewhere
+on your `PATH`. macOS, Linux, and Windows on amd64 and arm64.
+
 ### Makefile
+
+Builds from source, so this one needs [Go](https://golang.org/dl/) installed.
 
 ```sh
 make install
@@ -67,11 +74,8 @@ awsd init powershell | Out-String | Invoke-Expression
 
 Ex. `echo 'eval "$(awsd init zsh)"' >> ~/.zshrc`
 
-That one line defines the `awsd` command, sets up tab completion, and applies the profile and
-region you last selected to every new shell. Nothing else to configure.
-
-If `awsd` isn't on your `PATH` yet (the binary installs as `_awsd_prompt`), use
-`eval "$(_awsd_prompt init zsh)"` instead.
+That one line defines the `awsd` shell function, sets up tab completion, and applies the profile
+and region you last selected to every new shell. Nothing else to configure.
 
 ### Upgrading
 Upgrading consists of just doing a brew update and brew upgrade.
@@ -80,29 +84,42 @@ Upgrading consists of just doing a brew update and brew upgrade.
 brew update && brew upgrade radiusmethod/awsd/awsd
 ```
 
-### Upgrading from pre-v0.3.0
-Before v0.3.0 you needed a hand-written alias, a separate completion `source`, and a block of
-shell copied out of this README to persist your profile across shells:
+### Upgrading from pre-v0.4.0
+**v0.4.0 is a breaking change.** awsd now installs one binary named `awsd`. The old
+`_awsd_prompt` binary, the `_awsd` wrapper script, and the `_awsd_autocomplete` completion script
+are all gone, and so is the alias-based setup.
+
+Delete whatever of this you have in your shell config:
 
 ```sh
-alias awsd="source _awsd"        # no longer needed
-source _awsd_autocomplete        # no longer needed
-if [ -f ~/.awsd ]; then ...      # no longer needed
+alias awsd="source _awsd"        # removed in v0.4.0
+source _awsd_autocomplete        # removed in v0.4.0
+if [ -f ~/.awsd ]; then ...      # removed in v0.3.0
 ```
 
-Replace all of it with `eval "$(awsd init zsh)"`. The old alias still works for now, but it is
-deprecated and will be removed in a future release.
+and replace it with the single line for your shell from
+[To Finish Installation](#to-finish-installation) above.
 
-Two things to check when you upgrade:
+Then clear out the old files, which a package manager will not remove for you if you ever ran
+`make install` by hand:
+
+```sh
+rm -f /usr/local/bin/_awsd_prompt /usr/local/bin/_awsd /usr/local/bin/_awsd_autocomplete
+type -a _awsd_prompt   # should print nothing
+```
+
+Two things that bite during the upgrade:
 
 - **Remove the old alias.** In zsh an alias shadows a function of the same name, so leaving
   `alias awsd="source _awsd"` in place means the new `awsd` function never gets used. If the alias
   is defined *before* the `eval` line, the eval fails outright with
   `defining function based on alias 'awsd'`.
-- **Put the `eval` line after any `PATH` changes** that point at your awsd install. It runs
-  `_awsd_prompt` at startup, so if an older copy is earlier in `PATH` at that moment you get
-  `(eval):1: bad pattern: ^[[0`. That is a pre-v0.3.0 binary printing `Profile init does not
-  exist` and zsh trying to eval the color codes. `type -a _awsd_prompt` shows you every copy.
+- **Put the `eval` line after any `PATH` changes** that point at your awsd install. It runs `awsd`
+  at startup, so if an older copy is earlier in `PATH` at that moment you can get
+  `(eval):1: bad pattern: ^[[0`, which is an old binary printing a colored warning that your shell
+  then tries to eval. `type -a awsd` shows you every copy.
+
+Your `~/.awsd` file carries over untouched. Profile and region selections survive the upgrade.
 
 ## Usage
 
@@ -178,10 +195,14 @@ asks it for the matching shell code and evals that:
 
 ```sh
 awsd() {
-  command _awsd_prompt "$@" || return
-  eval "$(command _awsd_prompt shellenv bash)"
+  command awsd "$@" || return
+  eval "$(command awsd shellenv bash)"
 }
 ```
+
+The function and the binary share the name `awsd`. That works because `command` skips functions
+and aliases and runs the executable from `PATH`. PowerShell's `&` operator does not do this, so
+the generated PowerShell integration resolves the binary path up front with `Get-Command` instead.
 
 You can see exactly what gets eval'd at any time:
 

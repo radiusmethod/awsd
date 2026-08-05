@@ -4,6 +4,9 @@ on:
   push:
     tags: [ '*' ]
 
+permissions:
+  contents: write
+
 jobs:
   lint:
     runs-on: ubuntu-24.04
@@ -21,18 +24,27 @@ jobs:
     steps:
       - name: Check out code 🛒
         uses: actions/checkout@v7
+        with:
+          # GoReleaser needs full history and tags to resolve the version.
+          fetch-depth: 0
+
+      - name: Set up Go 🐹
+        uses: actions/setup-go@v7
+        with:
+          go-version: '1.26'
 
       - name: Generate Release Notes 📝
-        if: github.ref_type == 'tag'
         run: |
           CHANGE=$(sed "/${GITHUB_REF_NAME%%-*}/,/##/!d;//d" CHANGELOG.md | awk 'NF')
           echo "$CHANGE" > changelog.txt
-          RELEASE_TYPE=$(if [[ "$GITHUB_REF_NAME" =~ "beta" ]]; then echo "true"; else echo "false"; fi)
-          echo "RELEASE_TYPE=${RELEASE_TYPE}" >> $GITHUB_ENV
 
-      - name: Create Release 🎉
-        uses: ncipollo/release-action@v1
-        if: github.ref_type == 'tag'
+      - name: Run GoReleaser 🚀
+        uses: goreleaser/goreleaser-action@v6
         with:
-          bodyFile: "changelog.txt"
-          prerelease: ${{ env.RELEASE_TYPE }}
+          version: '~> v2'
+          args: release --clean --release-notes=changelog.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Needs write access to radiusmethod/homebrew-awsd. Without it the
+          # release still publishes; only the tap update is skipped.
+          HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
