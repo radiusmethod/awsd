@@ -46,6 +46,16 @@ func TestShouldRunDirectProfileSwitch(t *testing.T) {
 			expected: false,
 		},
 		{
+			name:     "Init command",
+			args:     []string{"awsd", "init"},
+			expected: false,
+		},
+		{
+			name:     "Shellenv command",
+			args:     []string{"awsd", "shellenv"},
+			expected: false,
+		},
+		{
 			name:     "No arguments",
 			args:     []string{"awsd"},
 			expected: false,
@@ -86,7 +96,7 @@ func TestDirectProfileSwitch(t *testing.T) {
 		{
 			name:          "Invalid profile",
 			profile:       "invalid",
-			expectError:   false,
+			expectError:   true,
 			expectFile:    false,
 			expectContent: "",
 		},
@@ -106,7 +116,9 @@ func TestDirectProfileSwitch(t *testing.T) {
 
 			err := directProfileSwitch(tt.profile)
 			if tt.expectError {
-				assert.Error(t, err)
+				assert.ErrorIs(t, err, errProfileNotFound)
+				_, statErr := os.Stat(awsdFile)
+				assert.True(t, os.IsNotExist(statErr), "File should not exist for invalid profile")
 				return
 			}
 			assert.NoError(t, err)
@@ -121,6 +133,44 @@ func TestDirectProfileSwitch(t *testing.T) {
 			}
 		})
 	}
+}
+
+// The shell integration evals command substitutions of this binary, so a
+// warning on stdout gets executed rather than shown. An older binary printing
+// "Profile init does not exist" to stdout is what turns a plain version skew
+// into "(eval):1: bad pattern: ^[[0".
+func TestDirectProfileSwitchWarningGoesToStderr(t *testing.T) {
+	tempDir := testutils.CreateTempDir(t)
+	defer testutils.CleanupTempDir(t, tempDir)
+
+	configPath := testutils.CreateMockAWSConfig(t, tempDir)
+	t.Setenv("AWS_CONFIG_FILE", configPath)
+	t.Setenv("HOME", tempDir)
+
+	var stderr string
+	stdout := captureStdout(t, func() {
+		stderr = captureStderr(t, func() {
+			assert.ErrorIs(t, directProfileSwitch("invalid"), errProfileNotFound)
+		})
+	})
+
+	assert.Empty(t, stdout, "warning must not reach stdout, the shell integration evals it")
+	assert.Contains(t, stderr, "does not exist")
+}
+
+// A successful switch still reports on stdout.
+func TestDirectProfileSwitchSuccessGoesToStdout(t *testing.T) {
+	tempDir := testutils.CreateTempDir(t)
+	defer testutils.CleanupTempDir(t, tempDir)
+
+	configPath := testutils.CreateMockAWSConfig(t, tempDir)
+	t.Setenv("AWS_CONFIG_FILE", configPath)
+	t.Setenv("HOME", tempDir)
+
+	stdout := captureStdout(t, func() {
+		assert.NoError(t, directProfileSwitch("dev"))
+	})
+	assert.Contains(t, stdout, "dev")
 }
 
 func TestRootCommand(t *testing.T) {

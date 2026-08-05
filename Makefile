@@ -7,17 +7,17 @@ install:       ## Install Target
 	GOOS= GOARCH= GOARM= GOFLAGS= go build -o ${BINDIR}/_awsd_prompt
 	cp scripts/_awsd ${BINDIR}/_awsd
 	cp scripts/_awsd_autocomplete ${BINDIR}/_awsd_autocomplete
-	@echo " -=-=--=-=-=-=-=-=-=-=-=-=-=-=- "
-	@echo "                                "
-	@echo "   To Finish Installation add   "
-	@echo "                                "
-	@echo "  alias awsd=\"source _awsd\"   "
-	@echo "                                "
-	@echo " to your bash profile or zshrc  "
-	@echo "   then open new terminal or    "
-	@echo "       source that file         "
-	@echo "                                "
-	@echo " -=-=--=-=-=-=-=-=-=-=-=-=-=-=- "
+	@echo " -=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- "
+	@echo "                                      "
+	@echo "     To Finish Installation add       "
+	@echo "                                      "
+	@echo "   eval \"\$$(_awsd_prompt init zsh)\"    "
+	@echo "                                      "
+	@echo "   to your zshrc (or bash profile,    "
+	@echo "   with 'init bash') then open a new  "
+	@echo "   terminal or source that file       "
+	@echo "                                      "
+	@echo " -=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- "
 
 uninstall:     ## Uninstall Target
 	rm -f ${BINDIR}/_awsd

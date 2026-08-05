@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -9,6 +10,11 @@ import (
 	"github.com/radiusmethod/promptui"
 	"github.com/spf13/cobra"
 )
+
+// errProfileNotFound is returned when argv named a profile that isn't in the
+// AWS config. The generated shell function keys off the exit code, so this has
+// to fail rather than exit 0.
+var errProfileNotFound = errors.New("profile does not exist")
 
 var rootCmd = &cobra.Command{
 	Use:   "awsd",
@@ -30,9 +36,7 @@ func RootCmd() *cobra.Command {
 func Execute() {
 	if shouldRunDirectProfileSwitch() {
 		profile := os.Args[1]
-		if err := directProfileSwitch(profile); err != nil {
-			log.Fatal(err)
-		}
+		handleSwitchError(directProfileSwitch(profile))
 		return
 	}
 	runRootCmd()
@@ -66,7 +70,10 @@ func runProfileSwitcher() error {
 }
 
 func shouldRunDirectProfileSwitch() bool {
-	invalidProfiles := []string{"l", "list", "set", "unset", "completion", "help", "--help", "-h", "v", "version"}
+	// Any argv[1] not in this list is treated as a profile name, so every
+	// subcommand and alias has to be listed here. Escape hatch for a profile
+	// that collides with one of these: awsd set profile <name>.
+	invalidProfiles := []string{"l", "list", "set", "unset", "init", "shellenv", "completion", "help", "--help", "-h", "v", "version"}
 	return len(os.Args) > 1 && !utils.Contains(invalidProfiles, os.Args[1])
 }
 
@@ -85,10 +92,23 @@ func directProfileSwitch(desiredProfile string) error {
 		}
 		return utils.WriteFile(desiredProfile, homeDir)
 	}
-	printColoredMessage("WARNING: Profile ", utils.NoticeColor)
-	printColoredMessage(desiredProfile, utils.CyanColor)
-	printColoredMessage(" does not exist.\n", utils.PromptColor)
-	return nil
+	printColoredWarning("WARNING: Profile ", utils.NoticeColor)
+	printColoredWarning(desiredProfile, utils.CyanColor)
+	printColoredWarning(" does not exist.\n", utils.PromptColor)
+	return fmt.Errorf("%w: %s", errProfileNotFound, desiredProfile)
+}
+
+// handleSwitchError exits non-zero when a profile switch fails. A missing
+// profile has already been reported on stderr, so exit quietly instead of
+// printing it a second time through log.Fatal.
+func handleSwitchError(err error) {
+	if err == nil {
+		return
+	}
+	if errors.Is(err, errProfileNotFound) {
+		os.Exit(1)
+	}
+	log.Fatal(err)
 }
 
 func getProfileFromPrompt(profiles []string) (string, error) {
@@ -119,4 +139,11 @@ func getProfileFromPrompt(profiles []string) (string, error) {
 
 func printColoredMessage(msg, color string) {
 	fmt.Printf(color, msg)
+}
+
+// printColoredWarning writes to stderr. Anything the shell integration might
+// capture in a command substitution has to stay off stdout, or the caller ends
+// up trying to eval ANSI escapes.
+func printColoredWarning(msg, color string) {
+	fmt.Fprintf(os.Stderr, color, msg)
 }
