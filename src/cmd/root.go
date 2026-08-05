@@ -66,7 +66,10 @@ func runProfileSwitcher() error {
 }
 
 func shouldRunDirectProfileSwitch() bool {
-	invalidProfiles := []string{"l", "list", "set", "unset", "completion", "help", "--help", "-h", "v", "version"}
+	// Any argv[1] not in this list is treated as a profile name, so every
+	// subcommand and alias has to be listed here. Escape hatch for a profile
+	// that collides with one of these: awsd set profile <name>.
+	invalidProfiles := []string{"l", "list", "set", "unset", "init", "shellenv", "completion", "help", "--help", "-h", "v", "version"}
 	return len(os.Args) > 1 && !utils.Contains(invalidProfiles, os.Args[1])
 }
 

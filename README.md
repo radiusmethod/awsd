@@ -15,13 +15,13 @@ awsd is a command-line utility that allows you to easily switch between AWS Prof
     - [Makefile](#makefile)
     - [To Finish Installation](#to-finish-installation)
     - [Upgrading](#upgrading)
+    - [Upgrading from pre-v0.3.0](#upgrading-from-pre-v030)
 - [Usage](#usage)
     - [Switching AWS Profiles](#switching-aws-profiles)
     - [Switching AWS Regions](#switching-aws-regions)
-    - [Persist Profile and Region across new shells](#persist-profile-and-region-across-new-shells)
     - [Show your AWS Profile in your shell prompt](#show-your-aws-profile-in-your-shell-prompt)
     - [Add autocompletion](#add-autocompletion)
-    - [TL;DR (full config example)](#tldr-full-config-example)
+- [Why a shell function?](#why-a-shell-function)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -43,13 +43,35 @@ make install
 ```
 
 ### To Finish Installation
-Add the following to your bash profile or zshrc then open new terminal or source that file
+Add one line to your shell's startup file, then open a new terminal or source that file.
 
+**zsh** (`~/.zshrc`):
 ```sh
-alias awsd="source _awsd"
+eval "$(awsd init zsh)"
 ```
 
-Ex. `echo 'alias awsd="source _awsd"' >> ~/.zshrc`
+**bash** (`~/.bashrc` or `~/.bash_profile`):
+```sh
+eval "$(awsd init bash)"
+```
+
+**fish** (`~/.config/fish/config.fish`):
+```fish
+awsd init fish | source
+```
+
+**PowerShell** (`$PROFILE`):
+```powershell
+awsd init powershell | Out-String | Invoke-Expression
+```
+
+Ex. `echo 'eval "$(awsd init zsh)"' >> ~/.zshrc`
+
+That one line defines the `awsd` command, sets up tab completion, and applies the profile and
+region you last selected to every new shell. Nothing else to configure.
+
+If `awsd` isn't on your `PATH` yet (the binary installs as `_awsd_prompt`), use
+`eval "$(_awsd_prompt init zsh)"` instead.
 
 ### Upgrading
 Upgrading consists of just doing a brew update and brew upgrade.
@@ -57,6 +79,30 @@ Upgrading consists of just doing a brew update and brew upgrade.
 ```sh
 brew update && brew upgrade radiusmethod/awsd/awsd
 ```
+
+### Upgrading from pre-v0.3.0
+Before v0.3.0 you needed a hand-written alias, a separate completion `source`, and a block of
+shell copied out of this README to persist your profile across shells:
+
+```sh
+alias awsd="source _awsd"        # no longer needed
+source _awsd_autocomplete        # no longer needed
+if [ -f ~/.awsd ]; then ...      # no longer needed
+```
+
+Replace all of it with `eval "$(awsd init zsh)"`. The old alias still works for now, but it is
+deprecated and will be removed in a future release.
+
+Two things to check when you upgrade:
+
+- **Remove the old alias.** In zsh an alias shadows a function of the same name, so leaving
+  `alias awsd="source _awsd"` in place means the new `awsd` function never gets used. If the alias
+  is defined *before* the `eval` line, the eval fails outright with
+  `defining function based on alias 'awsd'`.
+- **Put the `eval` line after any `PATH` changes** that point at your awsd install. It runs
+  `_awsd_prompt` at startup, so if an older copy is earlier in `PATH` at that moment you get
+  `(eval):1: bad pattern: ^[[0`. That is a pre-v0.3.0 binary printing `Profile init does not
+  exist` and zsh trying to eval the color codes. `type -a _awsd_prompt` shows you every copy.
 
 ## Usage
 
@@ -93,23 +139,8 @@ Region us-east-1 set.
 
 Setting a region exports `AWS_REGION` and `AWS_DEFAULT_REGION` in the calling shell. Profile and region are independent — `awsd set profile` does not change your region, and vice versa.
 
-### Persist Profile and Region across new shells
-To persist the active profile (and region) when you open new terminal windows, add the following to your bash profile or zshrc. It handles both the current `key=value` format and the legacy single-line format.
-
-```bash
-if [ -f ~/.awsd ]; then
-  if grep -q '=' ~/.awsd; then
-    while IFS='=' read -r k v; do
-      case "$k" in
-        profile) [ -n "$v" ] && export AWS_PROFILE="$v" ;;
-        region)  [ -n "$v" ] && export AWS_REGION="$v" AWS_DEFAULT_REGION="$v" ;;
-      esac
-    done < ~/.awsd
-  else
-    export AWS_PROFILE=$(cat ~/.awsd)
-  fi
-fi
-```
+Your selection persists across new terminal windows automatically, since `awsd init` applies
+whatever is in `~/.awsd` when each shell starts.
 
 ### Show your AWS Profile in your shell prompt
 For better visibility into what your shell is set to it can be helpful to configure your prompt to show the value of the env variable `AWS_PROFILE`.
@@ -132,30 +163,31 @@ PROMPT='OTHER_PROMPT_STUFF $(aws_info)'
 ```
 
 ### Add autocompletion
-Source the installed completion script from your bash profile or zshrc:
+Tab completion comes with `awsd init`. It completes profile names on `awsd <TAB>`, the
+`set`/`unset`/`list` subcommands, and their arguments, so `awsd set region <TAB>` lists regions
+and `awsd set profile <TAB>` lists profiles.
 
-```bash
-source _awsd_autocomplete
+## Why a shell function?
+
+`awsd init` generates a shell function rather than shipping a plain binary, because a child
+process cannot change its parent shell's environment. Anything that sets `AWS_PROFILE` for your
+current shell has to run *in* that shell.
+
+So the binary does the picking and writes your choice to `~/.awsd`, and the generated function
+asks it for the matching shell code and evals that:
+
+```sh
+awsd() {
+  command _awsd_prompt "$@" || return
+  eval "$(command _awsd_prompt shellenv bash)"
+}
 ```
 
-This completes profile names on `awsd <TAB>`, the `set`/`unset`/`list` subcommands, and their arguments — e.g. `awsd set region <TAB>` lists regions, `awsd set profile <TAB>` lists profiles.
+You can see exactly what gets eval'd at any time:
 
-### TL;DR (full config example)
-```bash
-alias awsd="source _awsd"
-source ~/bin/awsd_autocomplete.sh
-if [ -f ~/.awsd ]; then
-  if grep -q '=' ~/.awsd; then
-    while IFS='=' read -r k v; do
-      case "$k" in
-        profile) [ -n "$v" ] && export AWS_PROFILE="$v" ;;
-        region)  [ -n "$v" ] && export AWS_REGION="$v" AWS_DEFAULT_REGION="$v" ;;
-      esac
-    done < ~/.awsd
-  else
-    export AWS_PROFILE=$(cat ~/.awsd)
-  fi
-fi
+```sh
+awsd init zsh      # the whole integration
+awsd shellenv zsh  # just the exports for the current selection
 ```
 
 ## Contributing

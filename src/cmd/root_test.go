@@ -46,6 +46,16 @@ func TestShouldRunDirectProfileSwitch(t *testing.T) {
 			expected: false,
 		},
 		{
+			name:     "Init command",
+			args:     []string{"awsd", "init"},
+			expected: false,
+		},
+		{
+			name:     "Shellenv command",
+			args:     []string{"awsd", "shellenv"},
+			expected: false,
+		},
+		{
 			name:     "No arguments",
 			args:     []string{"awsd"},
 			expected: false,

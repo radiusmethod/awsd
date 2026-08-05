@@ -1,3 +1,11 @@
+## v0.3.0 (August 5, 2026)
+* Added `awsd init <shell>` — one line in your rc file (`eval "$(awsd init zsh)"`) now replaces the `awsd` alias, the completion `source`, and the persistence snippet from the README. [#53]
+* Added fish support, and PowerShell tab completion.
+* Added `awsd shellenv [shell]`, which prints the export/unset statements for the active profile and region. This is what the generated function evals.
+* `~/.awsd` parsing now lives only in the Go code. `scripts/_awsd` and `scripts/powershell/awsd.ps1` are thin shims over `awsd shellenv`.
+* Values are now shell-quoted, so profile names containing spaces or quotes work.
+* Deprecated `alias awsd="source _awsd"` and `source _awsd_autocomplete`. Both still work; use `awsd init` instead.
+
 ## v0.2.0 (April 27, 2026)
 * Added region switching: `awsd set region [name]` (interactive picker if no name given), `awsd unset region`, `awsd list regions`.
 * Added `awsd set profile [name]` and `awsd unset profile` as explicit forms — bare `awsd <profile>` still works.
