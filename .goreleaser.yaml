@@ -46,6 +46,9 @@ changelog:
 
 release:
   prerelease: auto
+  # Make re-runs idempotent. Without this, retrying a tag after a partial
+  # failure (a bad tap token, say) trips over the release that already exists.
+  mode: replace
 
 homebrew_casks:
   - name: awsd
