@@ -26,9 +26,7 @@ var setProfileCmd = &cobra.Command{
 			}
 			return
 		}
-		if err := directProfileSwitch(args[0]); err != nil {
-			log.Fatal(err)
-		}
+		handleSwitchError(directProfileSwitch(args[0]))
 	},
 }
 

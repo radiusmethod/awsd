@@ -11,30 +11,40 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// captureStdout runs fn with os.Stdout redirected and returns what it printed.
-// The commands print with fmt.Print rather than through cobra's writer, since
-// their output is meant to be eval'd by the shell.
-func captureStdout(t *testing.T, fn func()) string {
+// captureStream runs fn with the given stream redirected and returns what was
+// written to it. The commands print with fmt.Print rather than through cobra's
+// writer, since their output is meant to be eval'd by the shell.
+func captureStream(t *testing.T, stream **os.File, fn func()) string {
 	t.Helper()
-	orig := os.Stdout
+	orig := *stream
 	r, w, err := os.Pipe()
 	if err != nil {
 		t.Fatalf("Failed to create pipe: %v", err)
 	}
-	os.Stdout = w
+	*stream = w
 
 	fn()
 
 	if err := w.Close(); err != nil {
 		t.Fatalf("Failed to close pipe: %v", err)
 	}
-	os.Stdout = orig
+	*stream = orig
 
 	var buf bytes.Buffer
 	if _, err := io.Copy(&buf, r); err != nil {
 		t.Fatalf("Failed to read pipe: %v", err)
 	}
 	return buf.String()
+}
+
+func captureStdout(t *testing.T, fn func()) string {
+	t.Helper()
+	return captureStream(t, &os.Stdout, fn)
+}
+
+func captureStderr(t *testing.T, fn func()) string {
+	t.Helper()
+	return captureStream(t, &os.Stderr, fn)
 }
 
 func TestShellenvCommand(t *testing.T) {
