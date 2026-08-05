@@ -8,8 +8,8 @@ jobs:
   lint:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version: '1.26'
       - name: golangci-lint
@@ -20,7 +20,7 @@ jobs:
     needs: [ lint ]
     steps:
       - name: Check out code 🛒
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Generate Release Notes 📝
         if: github.ref_type == 'tag'
