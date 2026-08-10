@@ -43,12 +43,12 @@ jobs:
           go-version: '1.26'
       # Catch a broken release config here rather than halfway through a tag.
       - name: Validate release config
-        uses: goreleaser/goreleaser-action@v6
+        uses: goreleaser/goreleaser-action@v7
         with:
           version: '~> v2'
           args: check
       - name: Build snapshot
-        uses: goreleaser/goreleaser-action@v6
+        uses: goreleaser/goreleaser-action@v7
         with:
           version: '~> v2'
           args: release --snapshot --clean --skip=publish
