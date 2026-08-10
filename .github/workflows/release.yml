@@ -41,7 +41,7 @@ jobs:
           echo "$CHANGE" > "${RUNNER_TEMP}/changelog.txt"
 
       - name: Run GoReleaser 🚀
-        uses: goreleaser/goreleaser-action@v6
+        uses: goreleaser/goreleaser-action@v7
         with:
           version: '~> v2'
           args: release --clean --release-notes=${{ runner.temp }}/changelog.txt
