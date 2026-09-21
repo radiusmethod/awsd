@@ -6,7 +6,7 @@ on:
 
 jobs:
   lint-go:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v7
@@ -16,7 +16,7 @@ jobs:
         uses: golangci/golangci-lint-action@v9
 
   test:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v7
@@ -33,7 +33,7 @@ jobs:
           go tool cover -func=coverage.out
 
   goreleaser:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
         with:
